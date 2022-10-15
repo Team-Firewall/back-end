@@ -34,6 +34,7 @@ export class SignService {
           token: sign(
             {
               account: user.account,
+              phone: user.phone,
               grade: user.position === 2 ? '0' : user.grade,
               class: user.position === 2 ? '0' : user.class,
               number: user.position === 2 ? '0' : user.number,
