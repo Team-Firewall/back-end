@@ -6,6 +6,7 @@ import { Regulate } from './entity/regulate.entity';
 import { Parents } from './entity/parents.entity';
 import { Point } from './entity/point.entity';
 import { User } from './entity/user.entity';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { User } from './entity/user.entity';
     }),
     PointModule,
     SignModule,
+    AdminModule
   ],
 })
 export class AppModule {}
