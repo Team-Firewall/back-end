@@ -36,6 +36,8 @@ export class User{
 
 enum Role {
   ADMIN,
-  TEACHER,
-  STUDENT
+  H_TEACHER,
+  M_TEACHER,
+  H_STUDENT,
+  M_STUDENT
 }
