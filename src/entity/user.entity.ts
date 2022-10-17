@@ -27,7 +27,7 @@ export class User{
   @Column({ type: 'char', length: 64, nullable: false })
   password: string;
   
-  @Column({ default: 2 })
+  @Column({ nullable: false })
   position: Role;
 
   @Column({ type: 'varchar', length: 10, nullable: false })
