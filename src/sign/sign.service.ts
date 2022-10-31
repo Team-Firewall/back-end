@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { sign } from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { hash, getRandom } from '../util/text';
-import { User } from './../entity/User.entity';
+import { User } from '../entity/User.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 @Injectable()
@@ -34,9 +34,8 @@ export class SignService {
           token: sign(
             {
               account: user.account,
-              phone: user.phone,
               grade: user.position === 2 ? '0' : user.grade,
-              class: user.position === 2 ? '0' : user.class,
+              class: user.position === 2 ? '0' : user.classNum,
               number: user.position === 2 ? '0' : user.number,
               name: user.name,
               userid: user.id,
