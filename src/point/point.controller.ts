@@ -7,9 +7,12 @@ import {
   Put,
   Body,
   Param,
+  Req,
+  Res,
 } from '@nestjs/common';
 import { PointService } from './point.service';
 import { Point } from '../entity/point.entity';
+import { Request, Response } from 'express';
 
 @Controller('v1/point')
 export class PointController {
@@ -38,13 +41,13 @@ export class PointController {
   }
 
   @Delete(':id')
-  delete(@Param('id') id: number): Promise<Point | null> {
-    return this.pointService.remove(id);
+  deleteById(@Param('id') id: number, @Res() res: Response) {
+    return this.pointService.deleteById(id, res);
   }
 
   @Post()
-  add(@Body() data: Point): Promise<Point> {
-    return this.pointService.create(data);
+  addPoint(@Req() req: Request, @Res() res: Response) {
+    return this.pointService.addPoint(req, res);
   }
 
   @Put(':id')

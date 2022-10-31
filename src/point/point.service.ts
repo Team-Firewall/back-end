@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Point } from '../entity/point.entity';
+import e, { Request, Response } from 'express';
 
 @Injectable()
 export class PointService {
@@ -37,12 +38,45 @@ export class PointService {
   }
 
   // 삭제
-  async delete(id: number): Promise<Point | void> {
-    await this.pointRepository.delete({ id });
+  async deleteById(id: number, res: Response) {
+    const isId = this.findOne(id);
+    if(isId){
+      await this.pointRepository
+        .createQueryBuilder()
+        .delete()
+        .from(Point)
+        .where("id = :id", {id})
+        .execute()
+      res.status(200).send({
+        success: true,
+        msg: '성공적으로 상벌점 내역을 삭제하였습니다.'
+      })
+    }else{
+      res.status(400).send({
+        success: false,
+        msg: '해당하는 상벌점 내역을 조회할 수 없습니다.'
+      })
+    }
   }
   // 추가
-  async add(data: Point): Promise<void> {
-    await this.pointRepository.save(data);
+  async addPoint(req: Request, res: Response) {
+    const { userId, regulateId, reason } = req.body;
+    const data = await this.pointRepository.insert({
+      userId,
+      regulateId,
+      reason,
+    });
+    if(data){
+      res.status(201).send({
+        success: true,
+        msg: '성공적으로 상벌점을 부여하였습니다.'
+      })
+    } else {
+      res.status(400).send({
+        success: false,
+        msg: '유저가 존재하지 않거나 잘못된 규정입니다.'
+      })
+    }
   }
 
   // 수정
