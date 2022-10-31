@@ -1,19 +1,21 @@
 /* eslint-disable prettier/prettier */
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Point } from "./point.entity";
 
-@Entity()
+@Entity("regulate", { schema: "typeorm" })
 export class Regulate {
+  @PrimaryGeneratedColumn({ type: "int", name: "id" })
+  id: number;
 
-@PrimaryColumn()
-id: number;
+  @Column("tinyint", { name: "checked" })
+  checked: number;
 
-@Column({ nullable: false })
-regulate: string;
+  @Column("varchar", { name: "regulate", length: 50 })
+  regulate: string;
 
-@Column({ type: 'int', nullable: false })
-score: number;
+  @Column("int", { name: "score" })
+  score: number;
 
-@Column({ nullable: false })
-checked: boolean;
-
+  @OneToMany(() => Point, (point) => point.regulate)
+  points: Point[];
 }

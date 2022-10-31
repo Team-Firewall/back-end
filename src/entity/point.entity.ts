@@ -1,35 +1,48 @@
 /* eslint-disable prettier/prettier */
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn } from 'typeorm';
-import { User } from './user.entity';
-import { Regulate } from './regulate.entity';
-import { CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Regulate } from "./regulate.entity";
+import { User } from "./user.entity";
 
-@Entity()
+@Index("FK_User_TO_Point_1", ["userId"], {})
+@Index("FK_Regulate_TO_Point_1", ["regulateId"], {})
+@Entity("point", { schema: "typeorm" })
 export class Point {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
 
-  @Column({ type: 'int', default: false })
-  checked: boolean;
+  @Column("int", { name: "userId" })
+  userId: number;
 
-  @Column({ type: 'int', nullable: false })
-  point: number;
+  @Column("int", { name: "regulateId" })
+  regulateId: number;
 
-  @Column({ nullable: true })
-  reason: string;
+  @Column("varchar", { name: "reason", nullable: true, length: 300 })
+  reason: string | null;
 
-  @CreateDateColumn()
+  @Column("datetime", { name: "createdAt", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
-  @UpdateDateColumn({ nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
-  updatedAt: Date;
+  @Column("datetime", { name: "updatedAt", default: () => "CURRENT_TIMESTAMP" ,onUpdate: "CURRENT_TIMESTAMP", nullable: true })
+  updatedAt: Date | null;
 
-  @OneToMany(() => User, (user) => user.id)
-  @JoinColumn({ name: 'userId' })
-  userId: number
-  user: User[]
+  @ManyToOne(() => Regulate, (regulate) => regulate.points, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "regulateId", referencedColumnName: "id" }])
+  regulate: Regulate;
 
-  @OneToMany(() => Regulate, (regulate) => regulate.id)
-  @JoinColumn({ name: 'regulateId' })
-  regulate: Regulate[]
+  @ManyToOne(() => User, (user) => user.points, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "userId", referencedColumnName: "id" }])
+  user: User;
 }
