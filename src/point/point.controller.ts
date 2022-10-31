@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Controller,
   Get,
@@ -53,7 +54,6 @@ export class PointController {
   }
 }
 
-//TODO User 테이블에서 리스트를 불러와서 User를 선택하도록 만들어야 함 > 선택한후 해당 id를 userId로 넘겨줌
 //TODO User의 상벌점을 확인할때 동일한 userId값을 가진 데이터를 불러와서 합산하여 보여줘야 함 (날짜는 createdAt으로 구분)
 //TODO Regulate 테이블에서 리스트를 불러와서 규정을 선택하도록 만들어야 함 > 선택한후 해당 id를 넘겨줘야 함 regulateId로 넘겨줌
 //TODO User에게 상벌점을 부여할때 Regulate 테이블의 id값(regulateId)에 해당하는 score, checked를 가져와서 각각 point, checked에 넣어줘야 함 (값을 끌어다 쓴다는 의미)

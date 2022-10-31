@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,17 +13,17 @@ export class PointService {
     private pointRepository: Repository<Point>,
   ) {}
 
-  // 전체 조회
+  // 발급된 상벌점 데이터 출력
   findAll(): Promise<Point[]> {
     return this.pointRepository.find();
   }
 
-  // 단일 조회
+  // id 값으로 상벌점 데이터 조회
   findOne(id: number): Promise<Point> {
     return this.pointRepository.findOne({ where: { id } });
   }
 
-  // userId로 선택한 사용자의 모든 상벌점 데이터 조회
+  // userId 값으로 상벌점 데이터 조회
   async fetchPointByUserId(userId: number): Promise<Point[]> {
     return this.pointRepository.findBy({ userId });
   }
@@ -31,7 +32,7 @@ export class PointService {
   async fetchPointByUserIdAndRegulateId(id: number): Promise<Point | null> {
     return this.pointRepository.findOne({
       where: { id: Number(id) },
-      select: ['regulate', 'user'],
+      relations: ['user', 'regulate'],
     });
   }
 
@@ -53,6 +54,7 @@ export class PointService {
         .update(Point)
         .set({
           reason: point.reason,
+          // point: point.point,/
         })
         .where('id = :id', { id })
         .execute();
