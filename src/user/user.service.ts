@@ -14,12 +14,12 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async FindByGrade(grade: number, classNum: number, number: number): Promise<User> {
+  async FindUser( position: number, grade: number, classNum: number, number: number, name: string): Promise<User[]> {
     try {
-      return await this.userRepository.findOne({
-        where: { grade, classNum, number },
-        select: ['id', 'name', 'grade', 'classNum', 'number'],
-        relations: ['points'],
+      return await this.userRepository.find({
+        where: { position, grade, classNum, number, name },
+        select: ['id', 'position', 'grade', 'classNum', 'number', 'name'],
+        // relations: ['points'],
       });
     } catch (err) {
       console.log(err);
