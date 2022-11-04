@@ -14,8 +14,15 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
+  
+
   async FindUser( position: number, grade: number, classNum: number, number: number, name: string): Promise<User[]> {
     try {
+      if (grade === 0) grade = undefined
+      if (classNum === 0) classNum = undefined
+      if (number === 0) number = undefined
+      if (name === "") name = undefined
+
       return await this.userRepository.find({
         where: { position, grade, classNum, number, name },
         select: ['id', 'position', 'grade', 'classNum', 'number', 'name'],

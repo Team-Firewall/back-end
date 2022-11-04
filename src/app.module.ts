@@ -25,7 +25,7 @@ import { User } from './entity/user.entity';
     PointModule,
     UserModule,
     SignModule,
-    AdminModule
+    AdminModule,
   ],
 })
 export class AppModule {}
