@@ -20,9 +20,9 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('student')
-  FindByGrade(@Req() req: Request): Promise<User> {
-    const { grade, classNum, number } = req.body;
-    return this.userService.FindByGrade(grade, classNum, number);
+  FindUser(@Req() req: Request): Promise<User[]> {
+    const { position, grade, classNum, number, name } = req.body;
+    return this.userService.FindUser(position, grade, classNum, number, name);
   }
 
 
