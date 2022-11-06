@@ -47,8 +47,8 @@ export class AdminService {
     }
   }
 
- async addUser(req: Request, res: Response) {
-  const {name, phone, account, password, role} = req.body; //선생님이 중복으로 계정 생성을 하는가?
+ async addUser(req: Request, name: string, grade: number, classNum: number, number: number, res: Response) {
+  const { phone, account, password, role} = req.body; //선생님이 중복으로 계정 생성을 하는가?
   const isUser = await this.findOne(phone);
   if(isUser) {
     return res.status(400).send({
@@ -56,10 +56,22 @@ export class AdminService {
       msg: '이미 해당하는 유저가 있습니다.'
     })
   }else{
+      if (grade === 0) grade = null
+      if (classNum === 0) classNum = null
+      if (number === 0) number = null
+      if (name === "") {
+      return res.status(400).send({
+        success: false,
+        msg: "이름을 입력해주세요"
+      })
+      }
     const salt = getRandom('all', 10);
     const encrypt = hash(password + salt);
     await this.userRepository.insert({
       name: name,
+      grade: grade,
+      classNum: classNum,
+      number: number,
       phone: phone,
       account: account,
       password: encrypt,

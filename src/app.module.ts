@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PointModule } from './point/point.module';
@@ -19,7 +20,7 @@ import { User } from './entity/user.entity';
       password: '1234',
       database: 'firewall',
       entities: [Point, User, Regulate, Parents],
-      synchronize: true,
+      synchronize: false,
       autoLoadEntities: true,
     }),
     PointModule,
