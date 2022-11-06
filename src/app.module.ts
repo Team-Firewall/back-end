@@ -5,6 +5,7 @@ import { PointModule } from './point/point.module';
 import { AdminModule } from './admin/admin.module';
 import { UserModule } from './user/user.module';
 import { SignModule } from './sign/sign.module';
+import { RegulateModule} from './regulate/regulate.module';
 import { Regulate } from './entity/regulate.entity';
 import { Parents } from './entity/parents.entity';
 import { Point } from './entity/point.entity';
@@ -27,6 +28,7 @@ import { User } from './entity/user.entity';
     UserModule,
     SignModule,
     AdminModule,
+    RegulateModule,
   ],
 })
 export class AppModule {}
