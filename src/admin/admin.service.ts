@@ -47,8 +47,7 @@ export class AdminService {
     }
   }
 
- async addUser(req: Request, name: string, grade: number, classNum: number, number: number, res: Response) {
-  const { phone, account, password, role} = req.body; //선생님이 중복으로 계정 생성을 하는가?
+ async addUser(req: Request, name: string, grade: number, classNum: number, number: number, phone: string, account: string, password: string, role: number, res: Response) { //선생님이 중복으로 계정 생성을 하는가?
   const isUser = await this.findOne(phone);
   if(isUser) {
     return res.status(400).send({
