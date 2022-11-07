@@ -18,7 +18,7 @@ import { User } from './entity/user.entity';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: '1234',
+      password: '6482',
       database: 'firewall',
       entities: [Point, User, Regulate, Parents],
       synchronize: false,

@@ -48,11 +48,12 @@ export class AdminService {
   }
 
  async addUser(req: Request, name: string, grade: number, classNum: number, number: number, phone: string, account: string, password: string, role: number, res: Response) { //선생님이 중복으로 계정 생성을 하는가?
-  const isUser = await this.findOne(phone);
+  const isUser = await this.userRepository.findOneBy({ phone });
   if(isUser) {
     return res.status(400).send({
       success: false,
-      msg: '이미 해당하는 유저가 있습니다.'
+      msg: '이미 해당하는 유저가 있습니다.',
+      isUser
     })
   }else{
       if (grade === 0) grade = null
