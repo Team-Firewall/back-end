@@ -25,8 +25,12 @@ export class PointService {
   }
 
   // userId 값으로 상벌점 데이터 조회
-  async fetchPointByUserId(userId: number): Promise<Point[]> {
-    return this.pointRepository.findBy({ userId });
+ async fetchPointByUserId(userId: number): Promise<Point[]> {
+    return this.pointRepository.find({ 
+      where: { userId: Number(userId) },
+      select: ['id', 'reason', 'createdAt', 'updatedAt'],
+      relations: ['regulate'],
+    });
   }
 
   // id로 선택한 상벌점 데이터 조회 (데이터정보, 사용자정보, 규정정보)
