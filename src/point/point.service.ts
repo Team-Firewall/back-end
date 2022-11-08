@@ -49,12 +49,12 @@ export class PointService {
         .execute()
       res.status(200).send({
         success: true,
-        msg: '성공적으로 상벌점 내역을 삭제 해버렸노ㅋㅋ'
+        msg: '성공적으로 상벌점 내역을 삭제 했습니다.'
       })
     }else{
       res.status(400).send({
         success: false,
-        msg: '해당하는 상벌점 내역을 조회할 수 없노ㅋㅋ'
+        msg: '해당하는 상벌점 내역을 조회할 수 없습니다.'
       })
     }
   }
