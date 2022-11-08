@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Point } from '../entity/point.entity';
-import e, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class PointService {
@@ -49,27 +49,33 @@ export class PointService {
         .execute()
       res.status(200).send({
         success: true,
-        msg: '성공적으로 상벌점 내역을 삭제하였습니다.'
+        msg: '성공적으로 상벌점 내역을 삭제 해버렸노ㅋㅋ'
       })
     }else{
       res.status(400).send({
         success: false,
-        msg: '해당하는 상벌점 내역을 조회할 수 없습니다.'
+        msg: '해당하는 상벌점 내역을 조회할 수 없노ㅋㅋ'
       })
     }
   }
   // 추가
   async addPoint(req: Request, res: Response) {
-    const { userId, regulateId, reason } = req.body;
+    const { userId, regulateId, reason, token } = req.body;
+    const base64payload = token.split('.')[1];
+    const payload = Buffer.from(base64payload, 'base64');
+    const result = JSON.parse(payload.toString());
+    const issure = result.name;
+    
     const data = await this.pointRepository.insert({
       userId,
       regulateId,
       reason,
+      issure
     });
-    if(data){
-      res.status(201).send({
+    if(data) {
+        res.status(200).send({
         success: true,
-        msg: '성공적으로 상벌점을 부여하였습니다.'
+        msg: '성공적으로 상벌점을 부여하였습니다.',
       })
     } else {
       res.status(400).send({
