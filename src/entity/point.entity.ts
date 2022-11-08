@@ -25,6 +25,9 @@ export class Point {
 
   @Column("varchar", { name: "reason", nullable: true, length: 300 })
   reason: string | null;
+  
+  @Column("varchar", { name: "issuer", length: 30 })
+  issuer: string;
 
   @Column("datetime", { name: "createdAt", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
