@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { Point } from '../entity/point.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../sms/sms.service'
@@ -13,7 +13,7 @@ export class PointService {
   constructor(
     @InjectRepository(Point)
     private pointRepository: Repository<Point>,
-  ) {}
+    ) {}
 
   // 발급된 상벌점 데이터 출력
   findAll(): Promise<Point[]> {
@@ -41,7 +41,29 @@ export class PointService {
         relations: ['user', 'regulate']
       })
     }
-
+  async FindByDate(req: Request, res: Response) {
+    const {userId, firstDate, secondDate} = req.body;
+    const result = await this.pointRepository.find({
+      select: ["regulate","reason","createdAt"],
+      where: {
+        userId: userId,
+        createdAt: Between(firstDate, secondDate),
+      },
+      relations: ["user", "regulate"]
+    });
+    if(result.length !== 0){
+      res.status(200).send({
+      success: true,
+      msg:`${firstDate}일 부터 ${secondDate}까지의 상벌점 내역입니다.`,
+      result
+    })
+    } else {
+      res.status(400).send({
+        success: false,
+        msg: `${firstDate}일 부터 ${secondDate}까지의 상벌점 발급내역이 없거나 해당하는 유저를 찾을 수 없습니다.`
+      })
+    }
+  }
   // 삭제
   async deleteById(id: number, res: Response) {
     const isId = this.findOne(id);

@@ -22,7 +22,7 @@ import { User } from './entity/user.entity';
       password: '6482',
       database: 'firewall',
       entities: [Point, User, Regulate, Parents],
-      synchronize: true,
+      synchronize: false,
       autoLoadEntities: true,
     }),
     PointModule,
@@ -30,7 +30,7 @@ import { User } from './entity/user.entity';
     SignModule,
     AdminModule,
     RegulateModule,
-    SMS_Module,
+   // SMS_Module,
   ],
 })
 export class AppModule {}

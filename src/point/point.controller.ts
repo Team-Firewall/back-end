@@ -32,12 +32,12 @@ export class PointController {
   fetchPointByUserIdAndRegulateId(
     @Param('id') id: number,
   ): Promise<Point | null> {
-    return this.pointService.fetchPointByUserIdAndRegulateId(id);
+    return this.pointService.FindRelate(id);
   }
 
   @Get('User/:userId')
   fetchPointByUserId(@Param('userId') userId: number): Promise<Point[]> {
-    return this.pointService.fetchPointByUserId(userId);
+    return this.pointService.FindUserId(userId);
   }
 
   @Delete(':id')
@@ -54,6 +54,11 @@ export class PointController {
   update(@Param('id') id: number, @Body() data: Point) {
     this.pointService.update(id, data);
     return;
+  }
+
+  @Post('date')
+  FindByDate(@Req() req: Request, @Res() res: Response) {
+    return this.pointService.FindByDate(req, res);
   }
 }
 
