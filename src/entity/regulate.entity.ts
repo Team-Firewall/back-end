@@ -7,8 +7,8 @@ export class Regulate {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
 
-  @Column("tinyint", { name: "checked" })
-  checked: number;
+  @Column("varchar", { name: "checked", length: 3 })
+  checked: string;
 
   @Column("varchar", { name: "regulate", length: 50 })
   regulate: string;
