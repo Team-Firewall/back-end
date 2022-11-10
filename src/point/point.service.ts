@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Point } from '../entity/point.entity';
 import { Request, Response } from 'express';
+import { SMS_Service } from '../sms/sms.service'
 
 @Injectable()
 export class PointService {
@@ -25,7 +26,7 @@ export class PointService {
   }
 
   // userId 값으로 상벌점 데이터 조회
- async fetchPointByUserId(userId: number): Promise<Point[]> {
+ async FindUserId(userId: number): Promise<Point[]> {
     return this.pointRepository.find({ 
       where: { userId: Number(userId) },
       select: ['id', 'reason', 'createdAt', 'updatedAt'],
@@ -34,12 +35,12 @@ export class PointService {
   }
 
   // id로 선택한 상벌점 데이터 조회 (데이터정보, 사용자정보, 규정정보)
-  async fetchPointByUserIdAndRegulateId(id: number): Promise<Point | null> {
-    return this.pointRepository.findOne({
-      where: { id: Number(id) },
-      relations: ['user', 'regulate'],
-    });
-  }
+  async FindRelate(id: number): Promise<Point> {
+      return this.pointRepository.findOne({
+        where: {id}, 
+        relations: ['user', 'regulate']
+      })
+    }
 
   // 삭제
   async deleteById(id: number, res: Response) {
@@ -68,19 +69,30 @@ export class PointService {
     const base64payload = token.split('.')[1];
     const payload = Buffer.from(base64payload, 'base64');
     const result = JSON.parse(payload.toString());
-    const issure = result.name;
+    const issuer = result.name;
     
     const data = await this.pointRepository.insert({
       userId,
       regulateId,
       reason,
-      issure
+      issuer
     });
     if(data) {
         res.status(200).send({
         success: true,
         msg: '성공적으로 상벌점을 부여하였습니다.',
       })
+
+      // SMS 전송
+      const sms = new SMS_Service();
+      const user = await this.pointRepository.findOne({
+        where: { id: data.identifiers[0].id },
+        relations: ['user', 'regulate'],
+      });
+      const { name, phone } = user.user;
+      const { reason, issuer } = user;
+      const { score, regulate, checked } = user.regulate;
+      sms.sendMessage(phone, `${name}학생 ${checked} ${score}점 발급 ${regulate} -${reason} -${issuer}`);
     } else {
       res.status(400).send({
         success: false,
@@ -97,8 +109,8 @@ export class PointService {
         .createQueryBuilder()
         .update(Point)
         .set({
+          regulateId: point.regulateId,
           reason: point.reason,
-          // point: point.point,/
         })
         .where('id = :id', { id })
         .execute();
