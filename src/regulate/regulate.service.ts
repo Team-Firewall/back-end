@@ -14,7 +14,7 @@ export class RegulateService {
     private regulateRepository: Repository<Regulate>,
   ) {}
 
-  async FindRegulate(checked: number): Promise<Regulate[]> {
+  async FindRegulate(checked: string): Promise<Regulate[]> {
     try {
       return await this.regulateRepository.find({
         where: { checked },
