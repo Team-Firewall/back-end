@@ -17,7 +17,9 @@ export class PointService {
 
   // 발급된 상벌점 데이터 출력
   findAll(): Promise<Point[]> {
-    return this.pointRepository.find();
+    return this.pointRepository.find({
+      relations: ['regulate']
+    });
   }
 
   // id 값으로 상벌점 데이터 조회
