@@ -14,6 +14,7 @@ export class RegulateService {
     private regulateRepository: Repository<Regulate>,
   ) {}
 
+<<<<<<< HEAD
   // async FindRegulate(checked: number): Promise<Regulate[]> {
   //   try {
   //     return await this.regulateRepository.find({
@@ -26,3 +27,17 @@ export class RegulateService {
   //   }
   // }
 }
+=======
+  async FindRegulate(checked: string): Promise<Regulate[]> {
+    try {
+      return await this.regulateRepository.find({
+        where: { checked },
+        select: ['id', 'regulate', 'score'],
+      });
+
+    } catch (err) {
+      console.log(err);
+    }
+  }
+}
+>>>>>>> 3f49fa3cdd89c0b996bf8cf60269f6b7117c4540
