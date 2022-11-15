@@ -84,4 +84,35 @@ export class AdminService {
     })
   }
  }
+ async addUserMany(req: Request, res: Response) {
+    const arr = req.body;
+    for(let i = 0; i<arr.length; i++){
+      if (arr[i].grade === 0) arr[i].grade = null
+      if (arr[i].classNum === 0) arr[i].classNum = null
+      if (arr[i].number === 0) arr[i].number = null
+      if (arr[i].name === "") {
+      return res.status(400).send({
+        success: false,
+        msg: "이름을 입력해주세요"
+      })
+      }
+    const salt = getRandom('all', 10);
+    const encrypt = hash(arr[i].password + salt);
+    await this.userRepository.insert({
+      name: arr[i].name,
+      grade: arr[i].grade,
+      classNum: arr[i].classNum,
+      number: arr[i].number,
+      phone: arr[i].phone,
+      account: arr[i].account,
+      password: encrypt,
+      position: arr[i].role,
+      salt: salt
+    });
+    }
+    res.status(201).send({
+      success: true,
+      msg: '성공적'
+    })
+  }
 }

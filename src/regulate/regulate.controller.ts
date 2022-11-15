@@ -20,8 +20,8 @@ import { Regulate } from './../entity/regulate.entity';
 export class RegulateController {
   constructor(private readonly regulateService: RegulateService) {}
 
-  @Get('scoreDivision?')
-  async FindRegulate(@Query('checked') checked: number): Promise<Regulate[]> {
-    return this.regulateService.FindRegulate(checked);
-  }
+  // @Get('scoreDivision?')
+  // async FindRegulate(@Query('checked') checked: number): Promise<Regulate[]> {
+  //   return this.regulateService.FindRegulate(checked);
+  // }
 }

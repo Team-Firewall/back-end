@@ -5,6 +5,7 @@ import { Repository, Between } from 'typeorm';
 import { Point } from '../entity/point.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../sms/sms.service'
+import { Regulate } from 'src/entity/regulate.entity';
 
 @Injectable()
 export class PointService {
@@ -51,6 +52,7 @@ export class PointService {
       },
       relations: ["user", "regulate"]
     });
+    
     if(result.length !== 0){
       res.status(200).send({
       success: true,

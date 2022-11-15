@@ -14,15 +14,15 @@ export class RegulateService {
     private regulateRepository: Repository<Regulate>,
   ) {}
 
-  async FindRegulate(checked: number): Promise<Regulate[]> {
-    try {
-      return await this.regulateRepository.find({
-        where: { checked },
-        select: ['id', 'regulate', 'score'],
-      });
+  // async FindRegulate(checked: number): Promise<Regulate[]> {
+  //   try {
+  //     return await this.regulateRepository.find({
+  //       where: { checked },
+  //       select: ['id', 'regulate', 'score'],
+  //     });
 
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 }

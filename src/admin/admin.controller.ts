@@ -18,4 +18,9 @@ export class AdminController {
     const { name, grade, classNum, number, phone, account, password, role } = req.body
     return await this.AdminService.addUser(req, name, grade, classNum, number,  phone, account, password, role, res);
   }
+
+  @Post('addUserMany')
+  async addUserMany(@Req() req: Request, @Res() res: Response) {
+    return await this.AdminService.addUserMany(req, res);
+  }
 }
