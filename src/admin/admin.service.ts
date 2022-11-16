@@ -5,7 +5,7 @@ import { Repository } from "typeorm";
 import { hash, getRandom } from '../util/text';
 import { User } from './../entity/User.entity'; 
 import { Response, Request } from 'express';
-import { AzureActiveDirectoryPasswordAuthentication } from "typeorm/driver/sqlserver/authentication/AzureActiveDirectoryPasswordAuthentication";
+import { Error } from "sequelize";
 
 @Injectable()
 export class AdminService {
@@ -86,33 +86,43 @@ export class AdminService {
  }
  async addUserMany(req: Request, res: Response) {
     const arr = req.body;
+    const overlapedUser = [];
     for(let i = 0; i<arr.length; i++){
-      if (arr[i].grade === 0) arr[i].grade = null
-      if (arr[i].classNum === 0) arr[i].classNum = null
-      if (arr[i].number === 0) arr[i].number = null
-      if (arr[i].name === "") {
-      return res.status(400).send({
-        success: false,
-        msg: "이름을 입력해주세요"
-      })
-      }
-    const salt = getRandom('all', 10);
-    const encrypt = hash(arr[i].password + salt);
-    await this.userRepository.insert({
-      name: arr[i].name,
-      grade: arr[i].grade,
-      classNum: arr[i].classNum,
-      number: arr[i].number,
-      phone: arr[i].phone,
-      account: arr[i].account,
-      password: encrypt,
-      position: arr[i].role,
-      salt: salt
-    });
-    }
+        const isUser = await this.userRepository.find({
+          where: {
+            grade: arr[i].grade,
+            classNum: arr[i].classNum,
+            number: arr[i].number,
+            phone: arr[i].phone,
+            account: arr[i].account
+          }
+        })
+        if(!isUser){
+        const salt = getRandom('all', 10);
+        const encrypt = hash(arr[i].password + salt);
+        await this.userRepository.insert({
+        name: arr[i].name,
+        grade: arr[i].grade,
+        classNum: arr[i].classNum,
+        number: arr[i].number,
+        phone: arr[i].phone,
+        account: arr[i].account,
+        password: encrypt,
+        position: arr[i].role,
+        salt: salt
+      });
     res.status(201).send({
       success: true,
-      msg: '성공적'
+      msg: '성공적으로 유저를 생성했습니다.'
     })
+  } else {
+    overlapedUser[i] = arr[i];
+  }
+  }
+  res.status(400).send({
+    success: false,
+    msg: "이미 해당하는 유저가 있습니다.",
+    overlapedUser
+  })
   }
 }
