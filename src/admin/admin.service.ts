@@ -1,11 +1,10 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Like, Repository } from "typeorm";
 import { hash, getRandom } from '../util/text';
 import { User } from './../entity/User.entity'; 
 import { Response, Request } from 'express';
-import { Error } from "sequelize";
 
 @Injectable()
 export class AdminService {
@@ -87,6 +86,7 @@ export class AdminService {
  async addUserMany(req: Request, res: Response) {
     const arr = req.body;
     const overlapedUser = [];
+    const user = [];
     for(let i = 0; i<arr.length; i++){
         const isUser = await this.userRepository.find({
           where: {
@@ -97,7 +97,7 @@ export class AdminService {
             account: arr[i].account
           }
         })
-        if(!isUser){
+      if(isUser.length === 0){
         const salt = getRandom('all', 10);
         const encrypt = hash(arr[i].password + salt);
         await this.userRepository.insert({
@@ -111,18 +111,31 @@ export class AdminService {
         position: arr[i].role,
         salt: salt
       });
-    res.status(201).send({
-      success: true,
-      msg: '성공적으로 유저를 생성했습니다.'
-    })
+      user[i] = arr[i];
   } else {
     overlapedUser[i] = arr[i];
   }
   }
-  res.status(400).send({
-    success: false,
-    msg: "이미 해당하는 유저가 있습니다.",
-    overlapedUser
-  })
+  if(user.length !== 0 && overlapedUser.length !== 0){
+    res.status(201).send({
+      success: true,
+      msg1: '성공적으로 유저를 생성하였습니다.',
+      user,
+      msg2: '중복되는 유저가 있습니다',
+      overlapedUser
+    })
+  }else if(user.length !== 0){
+    res.status(201).send({
+      success: true,
+      msg: '성공적으로 유저를 생성하였습니다',
+      user
+    })
+  } else {
+    res.status(400).send({
+      success: false,
+      msg: '중복되는 유저가 있습니다.',
+      overlapedUser
+    })
+  }
   }
 }
