@@ -106,6 +106,7 @@ export class AdminService {
         classNum: arr[i].classNum,
         number: arr[i].number,
         phone: arr[i].phone,
+        parents: arr[i].parents,
         account: arr[i].account,
         password: encrypt,
         position: arr[i].role,
