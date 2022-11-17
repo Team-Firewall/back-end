@@ -118,7 +118,7 @@ export class PointService {
       const { name, phone } = user.user;
       const { reason, issuer } = user;
       const { score, regulate, checked } = user.regulate;
-      sms.sendMessage(phone, `${name}학생 ${checked} ${score}점 발급 (${regulate} ${ reason.length === 0 ? '' : `-${reason}` }) 발급자 - ${issuer}`);
+      sms.sendMessage(phone, `${name}학생 ${checked} ${score}점 발급 (${regulate} ${ reason.length === 0 ? '' : `-${reason}` }) - ${issuer}`);
     } else {
       res.status(400).send({
         success: false,
