@@ -24,7 +24,7 @@ export class SMS_Service {
           receiver: phone,
           content: message,
         }],
-        msg_type: 'SMS'
+        msg_type: 'LMS'
       })
     } catch (err) {
       console.log(err);
