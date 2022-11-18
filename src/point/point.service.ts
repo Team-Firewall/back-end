@@ -1,11 +1,14 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, Like } from 'typeorm';
 import { Point } from '../entity/point.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../sms/sms.service'
 import { Regulate } from 'src/entity/regulate.entity';
+import { time, timeStamp } from 'console';
+import { uptime } from 'process';
+import { DATE } from 'sequelize';
 
 @Injectable()
 export class PointService {
@@ -127,70 +130,93 @@ export class PointService {
     }
   }
 
-  수정
-  async update(id: number, point: Point): Promise<void> {
-    const existedUser = await this.findOne(id);
-    if (existedUser) {
-      await this.pointRepository
-        .createQueryBuilder()
-        .update(Point)
-        .set({
-          regulateId: point.regulateId,
-          reason: point.reason,
-        })
-        .where('id = :id', { id })
-        .execute();
-    }
-  }
-  //규정 수정
-  // async update(req: Request, res: Response) {
-  //   const arr = req.body;
-  //   if(arr.length > 1){
-  //     for(let i=0; i<arr.length; i++){
-  //       const existedUser = await this.findOne(arr[i].id);
-  //       if(existedUser){
-  //         await this.pointRepository
-  //           .createQueryBuilder()
-  //           .update(Point)
-  //           .set({
-  //             regulateId: arr[i].regulateId,
-  //             reason: arr[i].reason,
-  //           })
-  //           .where('id = :id', arr[i].id)
-  //           .execute()
-  //         res.status(200).send({
-  //           success: true,
-  //           msg:"성공적으로 내용을 수정했습니다."
-  //         })
-  //       }else{
-  //         res.status(400).send({
-  //           success: false,
-  //           msg:`${arr.id}라는 ID를 가진 유저를 찾을 수 없습니다.`
-  //         })
-  //       }
-  //     }
-  //   } else {
-  //     const existedUser = await this.findOne(arr.id);
-  //     if(existedUser){
-  //       await this.pointRepository
-  //         .createQueryBuilder()
-  //         .update(Point)
-  //         .set({
-  //           regulateId: arr.regulateId,
-  //           reason: arr.reason
-  //         })
-  //         .where('id = :id', arr.id)
-  //         .execute()
-  //         res.status(200).send({
-  //           success: true,
-  //           msg:"성공적으로 내용을 수정했습니다."
-  //         })
-  //     }else{
-  //       res.status(400).send({
-  //         success: false,
-  //         msg:`${arr.id}라는 ID를 가진 유저를 찾을 수 없습니다.`
+  //수정
+  // async update(id: number, point: Point): Promise<void> {
+  //   const existedUser = await this.findOne(id);
+  //   if (existedUser) {
+  //     await this.pointRepository
+  //       .createQueryBuilder()
+  //       .update(Point)
+  //       .set({
+  //         regulateId: point.regulateId,
+  //         reason: point.reason,
   //       })
-  //     }
+  //       .where('id = :id', { id })
+  //       .execute();
   //   }
   // }
+  //규정 수정
+  async update(req: Request, res: Response) {
+    const arr = req.body;
+    const successed = [];
+    const failed = [];
+    if(arr.length > 1){
+      for(let i=0; i<arr.length; i++){
+        const isPoint = await this.findOne(arr[i].id);
+        if(isPoint){
+          await this.pointRepository
+            .createQueryBuilder()
+            .update(Point)
+            .set({
+              userId: arr[i].userId,
+              regulateId: arr[i].regulateId,
+              reason: arr[i].reason,
+              issuer: arr[i].issuer,
+            })
+            .where({id: arr[i].id})
+            .execute()
+          successed[i] = arr[i];
+        }else{
+          failed[i] = arr[i];
+        }
+      }
+      if(successed.length !== 0 && failed.length !==0){
+        return res.status(200).send({
+          success: true,
+          msg:'해당하는 발급 내역이 수정되었습니다.',
+          successed,
+          msg2:'해당하는 발급 내역이 없어 수정에 실패하였습니다.',
+          failed
+        })
+      }else if(successed.length !== 0 && failed.length === 0){
+        return res.status(200).send({
+          success: true,
+          msg:'해당하는 발급 내역이 수정되었습니다.',
+          successed
+        })
+      }else{
+        return res.status(400).send({
+          success: false,
+          msg:'해당하는 발급 내역이 없어 수정에 실패하였습니다',
+          failed
+        })
+      }
+    } else {
+      const existedPoint = await this.findOne(arr[0].id);
+      if(existedPoint){
+        const result = 
+        await this.pointRepository
+          .createQueryBuilder()
+          .update(Point)
+          .set({
+            userId: arr[0].userId,
+            regulateId: arr[0].regulateId,
+            reason: arr[0].reason,
+            issuer: arr[0].issuer,
+          })
+          .where({id: arr[0].id})
+          .execute()
+        res.status(200).send({
+            success: true,
+            msg:"성공적으로 내용을 수정했습니다.",
+            result
+        })
+      }else{
+        res.status(400).send({
+          success: false,
+          msg:`${arr[0].id}라는 ID를 가진 발급 내역을 찾을 수 없습니다.`
+        })
+      }
+    }
+  }
 }
