@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Like, Repository } from "typeorm";
 import { hash, getRandom } from '../util/text';
 import { User } from './../entity/User.entity'; 
-import { Response, Request } from 'express';
+import e, { Response, Request } from 'express';
 
 @Injectable()
 export class AdminService {
@@ -67,10 +67,10 @@ export class AdminService {
     const salt = getRandom('all', 10);
     const encrypt = hash(password + salt);
     await this.userRepository.insert({
-      name: name,
       grade: grade,
       classNum: classNum,
       number: number,
+      name: name,
       phone: phone,
       account: account,
       password: encrypt,
@@ -101,12 +101,11 @@ export class AdminService {
         const salt = getRandom('all', 10);
         const encrypt = hash(arr[i].password + salt);
         await this.userRepository.insert({
-        name: arr[i].name,
         grade: arr[i].grade,
         classNum: arr[i].classNum,
         number: arr[i].number,
+        name: arr[i].name,
         phone: arr[i].phone,
-        parents: arr[i].parents,
         account: arr[i].account,
         password: encrypt,
         position: arr[i].role,
@@ -138,5 +137,49 @@ export class AdminService {
       overlapedUser
     })
   }
+  }
+  //유저 삭제
+  async deleteUser(res: Response, req: Request){
+    const user = req.body;
+    const data = [];
+    const unsignedUser = [];
+
+    if(user.length > 1){
+      for(let i=0; i<user.length; i++){
+        const isId = await this.userRepository.findBy({
+          id: user[i].id
+        });
+        if(isId.length === 0){
+          unsignedUser[i] = user[i].id;
+        }else{
+          await this.userRepository.delete(user[i].id)
+          data[i] = user[i];
+        }
+    }
+    res.status(200).send({
+      success: true,
+      msg:'성공적으로 유저를 삭제하였습니다.',
+      data,
+      msg2:"해당 ID를 가진 유저가 존재하지 않습니다.",
+      unsignedUser
+    })
+  } else {
+    const isId = await this.userRepository.findBy({
+      id: user[0].id
+    })
+    if(isId.length === 0){
+      return res.status(400).send({
+        success: false,
+        msg:"해당하는 ID를 가진 유저가 존재하지 않습니다.",
+        unsignedUser
+      })
+    }
+    const result = await this.userRepository.delete(user[0].id)
+      res.status(200).send({
+        success: true,
+        msg: '성공적으로 유저를 삭제하였습니다.',
+        result
+      })
+    }
   }
 }

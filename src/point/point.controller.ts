@@ -50,11 +50,10 @@ export class PointController {
     return this.pointService.addPoint(req, res);
   }
 
-  @Put(':id')
-  update(@Param('id') id: number, @Body() data: Point) {
-    this.pointService.update(id, data);
-    return;
-  }
+  // @Put()
+  // update(req: Request, res: Response) {
+  //   return this.pointService.update(req, res);
+  // }
 
   @Post('date')
   FindByDate(@Req() req: Request, @Res() res: Response) {

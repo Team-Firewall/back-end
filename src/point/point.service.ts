@@ -127,7 +127,7 @@ export class PointService {
     }
   }
 
-  // 수정
+  수정
   async update(id: number, point: Point): Promise<void> {
     const existedUser = await this.findOne(id);
     if (existedUser) {
@@ -142,4 +142,55 @@ export class PointService {
         .execute();
     }
   }
+  //규정 수정
+  // async update(req: Request, res: Response) {
+  //   const arr = req.body;
+  //   if(arr.length > 1){
+  //     for(let i=0; i<arr.length; i++){
+  //       const existedUser = await this.findOne(arr[i].id);
+  //       if(existedUser){
+  //         await this.pointRepository
+  //           .createQueryBuilder()
+  //           .update(Point)
+  //           .set({
+  //             regulateId: arr[i].regulateId,
+  //             reason: arr[i].reason,
+  //           })
+  //           .where('id = :id', arr[i].id)
+  //           .execute()
+  //         res.status(200).send({
+  //           success: true,
+  //           msg:"성공적으로 내용을 수정했습니다."
+  //         })
+  //       }else{
+  //         res.status(400).send({
+  //           success: false,
+  //           msg:`${arr.id}라는 ID를 가진 유저를 찾을 수 없습니다.`
+  //         })
+  //       }
+  //     }
+  //   } else {
+  //     const existedUser = await this.findOne(arr.id);
+  //     if(existedUser){
+  //       await this.pointRepository
+  //         .createQueryBuilder()
+  //         .update(Point)
+  //         .set({
+  //           regulateId: arr.regulateId,
+  //           reason: arr.reason
+  //         })
+  //         .where('id = :id', arr.id)
+  //         .execute()
+  //         res.status(200).send({
+  //           success: true,
+  //           msg:"성공적으로 내용을 수정했습니다."
+  //         })
+  //     }else{
+  //       res.status(400).send({
+  //         success: false,
+  //         msg:`${arr.id}라는 ID를 가진 유저를 찾을 수 없습니다.`
+  //       })
+  //     }
+  //   }
+  // }
 }

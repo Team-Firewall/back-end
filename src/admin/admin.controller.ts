@@ -23,4 +23,9 @@ export class AdminController {
   async addUserMany(@Req() req: Request, @Res() res: Response) {
     return await this.AdminService.addUserMany(req, res);
   }
+  
+  @Post('deleteUser')
+  async deleteUser(@Req() req: Request, @Res() res: Response) {
+    return await this.AdminService.deleteUser(res, req);
+  }
 }
