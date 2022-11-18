@@ -39,7 +39,7 @@ export class User {
   @OneToMany(() => Parents, (parents) => parents.user)
   parents: Parents[];
 
-  @OneToMany(() => Point, (point) => point.user)
+  @OneToMany(() => Point, (point) => point.user, { cascade: true })
   points: Point[];
 
   static id: any;
