@@ -43,7 +43,7 @@ export class Point {
   regulate: Regulate;
 
   @ManyToOne(() => User, (user) => user.points, {
-    onDelete: "NO ACTION",
+    onDelete: 'CASCADE',
     onUpdate: "NO ACTION",
   })
   @JoinColumn([{ name: "userId", referencedColumnName: "id" }])
