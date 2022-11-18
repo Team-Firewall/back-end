@@ -22,7 +22,7 @@ export class Parents {
   phone: string;
 
   @ManyToOne(() => User, (user) => user.parents, {
-    onDelete: "NO ACTION",
+    onDelete: 'CASCADE',
     onUpdate: "NO ACTION",
   })
   @JoinColumn([{ name: "userid", referencedColumnName: "id" }])
