@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import {
-  Controller,
+  Controller, Get,
   // Get,
   // Delete,
   Post,
@@ -19,7 +19,7 @@ import { Request } from 'express';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('student')
+  @Get('student')
   FindUser(@Req() req: Request): Promise<User[]> {
     const { position, grade, classNum, number, name } = req.body;
     return this.userService.FindUser(position, grade, classNum, number, name );
