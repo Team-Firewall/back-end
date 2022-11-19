@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, Like } from 'typeorm';
 import { Point } from '../entity/point.entity';
 import { Request, Response } from 'express';
-import { SMS_Service } from '../sms/sms.service'
+import { SMS_Service } from '../util/sms'
 import { Regulate } from 'src/entity/regulate.entity';
 import { time, timeStamp } from 'console';
 import { uptime } from 'process';
