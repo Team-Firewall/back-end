@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import {
   Controller,
-  // Get,
+  Get,
   // Delete,
   Post,
   // Put,
@@ -25,5 +25,9 @@ export class UserController {
     return this.userService.FindUser(position, grade, classNum, number, name );
   }
 
-
+  @Get()
+  UserList(): Promise<User[]> {
+    return this.userService.UserList();
+  }
+ 
 }

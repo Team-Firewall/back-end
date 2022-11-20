@@ -13,9 +13,6 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-
-  
-
   async FindUser( position: number, grade: number, classNum: number, number: number, name: string): Promise<User[]> {
     try {
       if (grade === 0) grade = undefined
@@ -44,5 +41,33 @@ export class UserService {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  async UserList(): Promise<User[]> {
+    const data = this.userRepository.find({
+      where: [
+        { position: 3 },
+        { position: 4 },
+      ],
+      select: [
+          'id', 
+          'name',
+          'grade', 
+          'classNum', 
+          'number',
+          'phone', 
+          'position'
+        ],
+        relations: ['parents'],
+      })
+    
+    try {
+      if (data) {
+        return data;
+      }
+    } catch {
+      console.log('error')
+    }
+
   }
 }
