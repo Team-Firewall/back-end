@@ -10,12 +10,15 @@ export class Regulate {
   @Column("varchar", { name: "checked", length: 3 })
   checked: string;
 
-  @Column("varchar", { name: "regulate", length: 50 })
+  @Column("varchar", { name: "division", length: 10 })
+  division: string;
+
+  @Column("varchar", { name: "regulate", length: 200 })
   regulate: string;
 
   @Column("int", { name: "score" })
   score: number;
 
-  @OneToMany(() => Point, (point) => point.regulate)
+  @OneToMany(() => Point, (point) => point.regulate, { cascade: true })
   points: Point[];
 }
