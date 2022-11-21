@@ -14,23 +14,11 @@ export class RegulateService {
     private regulateRepository: Repository<Regulate>,
   ) {}
 
-  // async FindRegulate(checked: number): Promise<Regulate[]> {
-  //   try {
-  //     return await this.regulateRepository.find({
-  //       where: { checked },
-  //       select: ['id', 'regulate', 'score'],
-  //     });
-
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
-
   async FindRegulate(checked: string): Promise<Regulate[]> {
     try {
       return await this.regulateRepository.find({
         where: { checked },
-        select: ['id', 'regulate', 'score'],
+        select: ['id','checked','division', 'regulate', 'score'],
       });
 
     } catch (err) {
