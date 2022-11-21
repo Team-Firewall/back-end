@@ -21,8 +21,8 @@ export class UserController {
 
   @Post('student')
   FindUser(@Req() req: Request): Promise<User[]> {
-    const { position, grade, classNum, number, name } = req.body;
-    return this.userService.FindUser(position, grade, classNum, number, name );
+    const { permission, grade, classNum, number, name } = req.body;
+    return this.userService.FindUser( permission, grade, classNum, number, name );
   }
 
   @Get()

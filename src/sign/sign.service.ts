@@ -34,15 +34,15 @@ export class SignService {
           token: sign(
             {
               account: user.account,
-              grade: user.position === 2 ? '0' : user.grade,
-              class: user.position === 2 ? '0' : user.classNum,
-              number: user.position === 2 ? '0' : user.number,
+              grade: user.permission !== 3||4 ? null : user.grade,
+              class: user.permission !== 3||4 ? null : user.classNum,
+              number: user.permission !== 3||4 ? null : user.number,
               name: user.name,
               userid: user.id,
-              position: user.position,
+              permission: user.permission,
             },
             'SECRET',
-            { expiresIn: user.position < 2 ? '30m' : '10m' },
+            { expiresIn: user.permission < 2 ? '30m' : '10m' },
           ),
         });
       } else

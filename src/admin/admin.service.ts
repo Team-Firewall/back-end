@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Like, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { hash, getRandom } from '../util/text';
 import { User } from './../entity/User.entity'; 
-import e, { Response, Request } from 'express';
+import { Response, Request } from 'express';
 
 @Injectable()
 export class AdminService {
@@ -74,7 +74,7 @@ export class AdminService {
       phone: phone,
       account: account,
       password: encrypt,
-      position: role,
+      permission: role,
       salt: salt
     });
     res.status(200).send({
@@ -108,7 +108,7 @@ export class AdminService {
         phone: arr[i].phone,
         account: arr[i].account,
         password: encrypt,
-        position: arr[i].role,
+        permission: arr[i].role,
         salt: salt
       });
       user[i] = arr[i];
