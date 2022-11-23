@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Req, Res, Post } from "@nestjs/common";
+import { Controller, Req, Res, Post, Put } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { Request, Response} from 'express';
 @Controller()
@@ -26,5 +26,10 @@ export class AdminController {
   @Post('deleteUser')
   async deleteUser(@Req() req: Request, @Res() res: Response) {
     return await this.adminService.deleteUser(res, req);
+  }
+
+  @Put('editUser')
+  async editUser(@Req() req: Request, @Res() res: Response) {
+    return this.adminService.editUser(req, res);
   }
 }
