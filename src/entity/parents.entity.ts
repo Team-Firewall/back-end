@@ -18,7 +18,7 @@ export class Parents {
   @Column("int", { name: "userid" })
   userid: number;
 
-  @Column("varchar", { name: "phone", length: 11 })
+  @Column("char", { name: "phone", length: 11 })
   phone: string;
 
   @ManyToOne(() => User, (user) => user.parents, {

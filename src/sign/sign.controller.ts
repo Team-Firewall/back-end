@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Controller, Post, Req, Res } from '@nestjs/common';
 import { SignService } from './sign.service';
 import { Request, Response } from 'express';

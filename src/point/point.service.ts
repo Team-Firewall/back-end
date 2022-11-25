@@ -133,21 +133,6 @@ export class PointService {
 
   }
 
-  //수정
-  // async update(id: number, point: Point): Promise<void> {
-  //   const existedUser = await this.findOne(id);
-  //   if (existedUser) {
-  //     await this.pointRepository
-  //       .createQueryBuilder()
-  //       .update(Point)
-  //       .set({
-  //         regulateId: point.regulateId,
-  //         reason: point.reason,
-  //       })
-  //       .where('id = :id', { id })
-  //       .execute();
-  //   }
-  // }
   //규정 수정
   async update(req: Request, res: Response) {
     const arr = req.body;

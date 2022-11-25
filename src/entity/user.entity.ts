@@ -9,34 +9,34 @@ export class User {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
 
-  @Column("int", { name: "grade", nullable: true })
+  @Column("tinyint", { name: "grade", nullable: true })
   grade: number | null;
 
-  @Column("int", { name: "class", nullable: true })
+  @Column("tinyint", { name: "class", nullable: true })
   classNum: number | null;
 
-  @Column("int", { name: "number", nullable: true })
+  @Column("smallint", { name: "number", nullable: true })
   number: number | null;
 
   @Column("varchar", { name: "name", length: 10 })
   name: string;
 
-  @Column("varchar", { name: "phone", length: 11 })
+  @Column("char", { name: "phone", length: 11 })
   phone: string;
 
-  @Column("varchar", { name: "account", length: 30 })
+  @Column("varchar", { name: "account", length: 10 })
   account: string;
 
   @Column("char", { name: "password", length: 64 })
   password: string;
 
-  @Column("tinyint", { name: "position" })
-  position: number;
+  @Column("tinyint", { name: "permission" })
+  permission: number;
 
   @Column("varchar", { name: "salt", length: 10 })
   salt: string;
 
-  @OneToMany(() => Parents, (parents) => parents.user)
+  @OneToMany(() => Parents, (parents) => parents.user, { cascade: true })
   parents: Parents[];
 
   @OneToMany(() => Point, (point) => point.user, { cascade: true })

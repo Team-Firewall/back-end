@@ -23,10 +23,10 @@ export class Point {
   @Column("int", { name: "regulateId" })
   regulateId: number;
 
-  @Column("varchar", { name: "reason", nullable: true, length: 300 })
+  @Column("varchar", { name: "reason", nullable: true, length: 100 })
   reason: string | null;
   
-  @Column("varchar", { name: "issuer", length: 30 })
+  @Column("varchar", { name: "issuer", length: 10 })
   issuer: string;
 
   @Column("datetime", { name: "createdAt", default: () => "CURRENT_TIMESTAMP" })
@@ -36,7 +36,7 @@ export class Point {
   updatedAt: Date | null;
 
   @ManyToOne(() => Regulate, (regulate) => regulate.points, {
-    onDelete: "NO ACTION",
+    onDelete: 'CASCADE',
     onUpdate: "NO ACTION",
   })
   @JoinColumn([{ name: "regulateId", referencedColumnName: "id" }])

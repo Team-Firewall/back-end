@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Like, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { hash, getRandom } from '../util/text';
 import { User } from './../entity/User.entity'; 
-import e, { Response, Request } from 'express';
+import { Response, Request } from 'express';
 
 @Injectable()
 export class AdminService {
@@ -74,7 +74,7 @@ export class AdminService {
       phone: phone,
       account: account,
       password: encrypt,
-      position: role,
+      permission: role,
       salt: salt
     });
     res.status(200).send({
@@ -108,7 +108,7 @@ export class AdminService {
         phone: arr[i].phone,
         account: arr[i].account,
         password: encrypt,
-        position: arr[i].role,
+        permission: arr[i].role,
         salt: salt
       });
       user[i] = arr[i];
@@ -180,6 +180,85 @@ export class AdminService {
         msg: '성공적으로 유저를 삭제하였습니다.',
         result
       })
+    }
+  }
+  async editUser(req: Request, res: Response) {
+    const arr = req.body;
+    const successReq = [];
+    const falseReq = [];
+    if(arr.length > 1){
+      for(let i=0; i<arr.length; i++){
+        const isUser = await this.userRepository.find({
+          where: {id: arr[i].id}
+        });
+        if(isUser.length !== 0){
+          await this.userRepository
+            .createQueryBuilder()
+            .update(User)
+            .set({
+              grade: arr[i].grade,
+              classNum: arr[i].classNum,
+              number: arr[i].number,
+              name: arr[i].name,
+              phone: arr[i].phone,
+              permission: arr[i].permission
+            })
+            .where({id: arr[i].id})
+            .execute()
+            successReq[i] = arr[i];
+        } else {
+          falseReq[i] = arr[i];
+        }
+      }
+      if(successReq.length !== 0 && falseReq.length !== 0){
+        res.status(200).send({
+          success: true,
+          msg:'데이터 수정에 성공한 유저입니다.',
+          successReq,
+          msg2:'데이터를 수정하지 못한 유저입니다.',
+          falseReq
+        })
+      }else if(successReq.length !== 0 && falseReq.length === 0){
+        res.status(200).send({
+          success: true,
+          msg:'데이터 수정에 성공한 유저입니다.',
+          successReq,
+        })
+      }else{
+        res.status(400).send({
+          success: false,
+          msg2:'데이터를 수정하지 못한 유저입니다.',
+          falseReq
+        })
+      }
+    } else {
+      const isUser = await this.userRepository.find({
+        where:{id: arr[0].id}
+      });
+      if(isUser.length !== 0){
+        await this.userRepository
+            .createQueryBuilder()
+            .update(User)
+            .set({
+              grade: arr[0].grade,
+              classNum: arr[0].classNum,
+              number: arr[0].number,
+              name: arr[0].name,
+              phone: arr[0].phone,
+              permission: arr[0].permission
+            })
+            .where({id: arr[0].id})
+            .execute()
+        res.status(200).send({
+          success: true,
+          msg:'데이터 수정에 성공하였습니다.'
+        })
+      } else {
+        res.status(400).send({
+          success: false,
+          msg: '해당하는 유저를 찾을 수 없습니다'
+        })
+      }
     }
   }
 }
