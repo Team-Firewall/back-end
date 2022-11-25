@@ -1,12 +1,25 @@
+GET http://localhost:3001/v1/user
+Accept: application/json
+
+###
 POST http://localhost:3001/v1/point
 Content-Type: application/json
 
-{
-  "userId": "1",
-  "regulateId": "3",
-  "reason": "하하",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50IjoiYWRtaW4iLCJncmFkZSI6bnVsbCwiY2xhc3MiOm51bGwsIm51bWJlciI6bnVsbCwibmFtZSI6Iuq0gOumrOyekCIsInVzZXJpZCI6MTEsInBvc2l0aW9uIjowLCJpYXQiOjE2Njg1MjIyNTAsImV4cCI6MTY2ODUyNDA1MH0.LcAaPRoSgOSrwOKPt8-ees_CTAhBJmsMmLUClPhRvMs"
-}
+
+[
+  {
+    "userId": "3",
+    "regulateId": "3",
+    "reason": "하하",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50IjoiYWRtaW4iLCJncmFkZSI6bnVsbCwiY2xhc3MiOm51bGwsIm51bWJlciI6bnVsbCwibmFtZSI6Iuq0gOumrOyekCIsInVzZXJpZCI6MTEsInBvc2l0aW9uIjowLCJpYXQiOjE2Njg1MjIyNTAsImV4cCI6MTY2ODUyNDA1MH0.LcAaPRoSgOSrwOKPt8-ees_CTAhBJmsMmLUClPhRvMs"
+  },
+  {
+    "userId": "2",
+    "regulateId": "3",
+    "reason": "하하",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50IjoiYWRtaW4iLCJncmFkZSI6bnVsbCwiY2xhc3MiOm51bGwsIm51bWJlciI6bnVsbCwibmFtZSI6Iuq0gOumrOyekCIsInVzZXJpZCI6MTEsInBvc2l0aW9uIjowLCJpYXQiOjE2Njg1MjIyNTAsImV4cCI6MTY2ODUyNDA1MH0.LcAaPRoSgOSrwOKPt8-ees_CTAhBJmsMmLUClPhRvMs"
+  }
+]
 
 ###
 POST http://localhost:3001/addUserMany

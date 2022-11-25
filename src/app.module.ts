@@ -21,7 +21,7 @@ import { User } from './entity/user.entity';
       password: '1234',
       database: 'firewall',
       entities: [Point, User, Regulate, Parents],
-      synchronize: false,
+      synchronize: true,
       autoLoadEntities: true,
     }),
     PointModule,
