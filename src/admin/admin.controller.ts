@@ -12,15 +12,9 @@ export class AdminController {
     return await this.adminService.changePassword(req, res, prepw, nextpw);
   }
 
-  @Post("addUser")
-  async addUser(@Req() req: Request, @Res() res: Response) {
-    const { name, grade, classNum, number, phone, account, password, role } = req.body
-    return await this.adminService.addUser(req, name, grade, classNum, number,  phone, account, password, role, res);
-  }
-
-  @Post('addUserMany')
+  @Post('addUser')
   async addUserMany(@Req() req: Request, @Res() res: Response) {
-    return await this.adminService.addUserMany(req, res);
+    return await this.adminService.addUser(req, res);
   }
   
   @Post('deleteUser')
