@@ -19,7 +19,7 @@ export class PointController {
   constructor(private readonly pointService: PointService) {}
 
   @Get()
-  findAll(): Promise<Point[]> {
+  findAll(){
     return this.pointService.findAll();
   }
 

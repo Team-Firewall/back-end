@@ -32,8 +32,8 @@ export class Point {
   @Column("datetime", { name: "createdAt", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
-  @Column("datetime", { name: "updatedAt", default: () => "CURRENT_TIMESTAMP" ,onUpdate: "CURRENT_TIMESTAMP", nullable: true })
-  updatedAt: Date | null;
+  @Column("datetime", { name: "updatedAt", default: () => "CURRENT_TIMESTAMP" ,onUpdate: "CURRENT_TIMESTAMP"})
+  updatedAt: Date;
 
   @ManyToOne(() => Regulate, (regulate) => regulate.points, {
     onDelete: 'CASCADE',

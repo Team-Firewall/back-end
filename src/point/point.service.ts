@@ -15,13 +15,44 @@ export class PointService {
     private pointRepository: Repository<Point>,
     ) {}
 
-  // 발급된 상벌점 데이터 출력
-  findAll(): Promise<Point[]> {
-    return this.pointRepository.find({
-      relations: ['regulate']
-    });
-  }
+  // 발급된 상벌점 데이터 출력]
 
+  async findAll() {
+    const list = await this.pointRepository
+      .createQueryBuilder('point')
+      .select(['point', 'regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
+      .leftJoin('point.user', 'user')
+      .leftJoin('point.regulate', 'regulate')
+      .getMany();
+      
+    const data = JSON.stringify(list.map(cb => {
+      const createdDate = new Date(cb.createdAt).toISOString().split('T')[0];
+      const updatedDate = new Date(cb.updatedAt).toISOString().split('T')[0];
+      const createdTime = new Date(cb.createdAt).toTimeString().split(' ')[0];
+      const updatedTime = new Date(cb.updatedAt).toTimeString().split(' ')[0];
+
+      return({
+        id: cb.id,
+        userId: cb.user.id,
+        regulateId: cb.regulate.id,
+        grade: cb.user.grade,
+        class: cb.user.classNum,
+        number: cb.user.number,
+        name: cb.user.name,
+        checked: cb.regulate.checked,
+        division: cb.regulate.division,
+        regualte: cb.regulate.regulate,
+        score: cb.regulate.score,
+        reason: cb.reason,
+        issuer: cb.issuer,
+        createdDate: createdDate,
+        createdTime: createdTime,
+        updatedDate: updatedDate,
+        updatedTime: updatedTime,
+      })
+    }));
+    return data;
+  }
   // id 값으로 상벌점 데이터 조회
   findOne(id: number): Promise<Point> {
     return this.pointRepository.findOne({ where: { id } });
