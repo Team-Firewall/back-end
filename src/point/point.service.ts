@@ -41,7 +41,7 @@ export class PointService {
         name: cb.user.name,
         checked: cb.regulate.checked,
         division: cb.regulate.division,
-        regualte: cb.regulate.regulate,
+        regulate: cb.regulate.regulate,
         score: cb.regulate.score,
         reason: cb.reason,
         issuer: cb.issuer,
