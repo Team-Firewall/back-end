@@ -18,8 +18,27 @@ export class PointService {
   // 발급된 상벌점 데이터 출력]
 
   async findAll() {
+    const date = new Date();
+      const year = date.getFullYear()
+      const month = date.getMonth()
+      const day = date.getDate()
+      const hour = date.getHours()
+      const minute = date.getMinutes()
+      const second = date.getSeconds()
+
+      const startDate = <Date>(new Date(year, month, day -7, hour, minute, second));
+      const endDate = <Date>(new Date(year, month, day, hour, minute, second));
+      const fDate = (startDate).toISOString().split('T')[0];
+      const fTime = (startDate).toTimeString().split(' ')[0];
+      const firstDate = (fDate+" "+fTime)
+      const sDate = (endDate).toISOString().split('T')[0];
+      const sTime = (endDate).toTimeString().split(' ')[0];
+      const secondDate = (sDate+" "+sTime)
+      console.log(firstDate, secondDate)
+
     const list = await this.pointRepository
       .createQueryBuilder('point')
+      .where('point.createdAt BETWEEN :startDate AND :endDate', { startDate: firstDate, endDate: secondDate })
       .select(['point', 'regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
       .leftJoin('point.user', 'user')
       .leftJoin('point.regulate', 'regulate')
