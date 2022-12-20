@@ -23,11 +23,14 @@ export class Point {
   @Column("int", { name: "regulateId" })
   regulateId: number;
 
-  @Column("varchar", { name: "reason", nullable: true, length: 100 })
-  reason: string | null;
-  
+  @Column("varchar", { name: "issuerId", length: 10})
+  issuerId: string;
+
   @Column("varchar", { name: "issuer", length: 10 })
   issuer: string;
+
+  @Column("varchar", { name: "reason", nullable: true, length: 100 })
+  reason: string | null;
 
   @Column("datetime", { name: "createdAt", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
