@@ -18,7 +18,7 @@ export class PointService {
   // 발급된 상벌점 데이터 출력]
 
   async findAll() {
-    const date = new Date();
+      const date = new Date();
       const year = date.getFullYear()
       const month = date.getMonth()
       const day = date.getDate()
@@ -96,11 +96,9 @@ export class PointService {
 
   // 해당 기간의 상벌점 데이터 조회
   async FindByDate(req: Request, res: Response) {
-    const {userId, firstDate, secondDate} = req.body;
+    const {firstDate, secondDate} = req.body;
     const result = await this.pointRepository.find({
-      select: ["regulate","reason","createdAt"],
       where: {
-        userId: userId,
         createdAt: Between(firstDate, secondDate),
       },
       relations: ["user", "regulate"]
