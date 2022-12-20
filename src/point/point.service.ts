@@ -5,7 +5,6 @@ import { Repository, Between } from 'typeorm';
 import { Point } from '../entity/point.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../util/sms'
-import { time } from 'console';
 
 @Injectable()
 export class PointService {
@@ -14,28 +13,28 @@ export class PointService {
   constructor(
     @InjectRepository(Point)
     private pointRepository: Repository<Point>,
-  ) {}
+    ) {}
 
   // 발급된 상벌점 데이터 출력]
 
   async findAll() {
-    const date = new Date();
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const day = date.getDate()
-    const hour = date.getHours()
-    const minute = date.getMinutes()
-    const second = date.getSeconds()
+      const date = new Date();
+      const year = date.getFullYear()
+      const month = date.getMonth()
+      const day = date.getDate()
+      const hour = date.getHours()
+      const minute = date.getMinutes()
+      const second = date.getSeconds()
 
-    const startDate = <Date>(new Date(year, month, day -7, hour, minute, second));
-    const endDate = <Date>(new Date(year, month, day, hour, minute, second));
-    const fDate = (startDate).toISOString().split('T')[0];
-    const fTime = (startDate).toTimeString().split(' ')[0];
-    const firstDate = (fDate+" "+fTime)
-    const sDate = (endDate).toISOString().split('T')[0];
-    const sTime = (endDate).toTimeString().split(' ')[0];
-    const secondDate = (sDate+" "+sTime)
-    console.log(firstDate, secondDate)
+      const startDate = <Date>(new Date(year, month, day -7, hour, minute, second));
+      const endDate = <Date>(new Date(year, month, day, hour, minute, second));
+      const fDate = (startDate).toISOString().split('T')[0];
+      const fTime = (startDate).toTimeString().split(' ')[0];
+      const firstDate = (fDate+" "+fTime)
+      const sDate = (endDate).toISOString().split('T')[0];
+      const sTime = (endDate).toTimeString().split(' ')[0];
+      const secondDate = (sDate+" "+sTime)
+      console.log(firstDate, secondDate)
 
     const list = await this.pointRepository
       .createQueryBuilder('point')
@@ -44,7 +43,7 @@ export class PointService {
       .leftJoin('point.user', 'user')
       .leftJoin('point.regulate', 'regulate')
       .getMany();
-
+      
     const data = JSON.stringify(list.map(cb => {
       const createdDate = new Date(cb.createdAt).toISOString().split('T')[0];
       const updatedDate = new Date(cb.updatedAt).toISOString().split('T')[0];
@@ -65,7 +64,6 @@ export class PointService {
         score: cb.regulate.score,
         reason: cb.reason,
         issuer: cb.issuer,
-        issuerId: cb.issuerId,
         createdDate: createdDate,
         createdTime: createdTime,
         updatedDate: updatedDate,
@@ -80,8 +78,8 @@ export class PointService {
   }
 
   // userId 값으로 상벌점 데이터 조회
-  async FindUserId(userId: number): Promise<Point[]> {
-    return this.pointRepository.find({
+ async FindUserId(userId: number): Promise<Point[]> {
+    return this.pointRepository.find({ 
       where: { userId: Number(userId) },
       select: ['id', 'reason', 'createdAt', 'updatedAt'],
       relations: ['regulate'],
@@ -90,27 +88,23 @@ export class PointService {
 
   // id로 선택한 상벌점 데이터 조회 (데이터정보, 사용자정보, 규정정보)
   async FindRelate(id: number): Promise<Point> {
-    return this.pointRepository.findOne({
-      where: {id},
-      relations: ['user', 'regulate']
-    })
-  }
+      return this.pointRepository.findOne({
+        where: {id}, 
+        relations: ['user', 'regulate']
+      })
+    }
 
   // 해당 기간의 상벌점 데이터 조회
   async FindByDate(req: Request, res: Response) {
     const {firstDate, secondDate} = req.body;
-    const date = new Date();
-    const time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
-    const startDate = firstDate+' '+time;
-    const endDate = secondDate+' '+time;
     const list = await this.pointRepository
       .createQueryBuilder('point')
-      .where('point.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .where('point.createdAt BETWEEN :startDate AND :endDate', { startDate: firstDate, endDate: secondDate })
       .select(['point', 'regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
       .leftJoin('point.user', 'user')
       .leftJoin('point.regulate', 'regulate')
       .getMany();
-
+      
     const data = (list.map(cb => {
       const createdDate = new Date(cb.createdAt).toISOString().split('T')[0];
       const updatedDate = new Date(cb.updatedAt).toISOString().split('T')[0];
@@ -145,7 +139,7 @@ export class PointService {
     }else{
       res.status(400).send({
         success: false,
-        msg: `${startDate}부터 ${endDate}까지의 상벌점 발급 내역이 없습니다`
+        msg: `${firstDate}일부터 ${secondDate}일까지의 상벌점 발급 내역이 없습니다`
       })
     }
   }
@@ -180,15 +174,13 @@ export class PointService {
       const payload = Buffer.from(base64payload, 'base64');
       const result = JSON.parse(payload.toString());
       const issuer = result.name;
-      const issuerId = result.account;
 
       const data = await this.pointRepository.insert({
         userId: userId,
-        regulateId: regulateId,
         reason: reason,
-        issuer: issuer,
-        issuerId: issuerId
-      });
+        regulateId: regulateId,
+        issuer: issuer
+      })
 
       if(data){
         const sms = new SMS_Service();
@@ -264,22 +256,22 @@ export class PointService {
     } else {
       const existedPoint = await this.findOne(arr[0].id);
       if(existedPoint){
-        const result =
-          await this.pointRepository
-            .createQueryBuilder()
-            .update(Point)
-            .set({
-              userId: arr[0].userId,
-              regulateId: arr[0].regulateId,
-              reason: arr[0].reason,
-              issuer: arr[0].issuer,
-            })
-            .where({id: arr[0].id})
-            .execute()
+        const result = 
+        await this.pointRepository
+          .createQueryBuilder()
+          .update(Point)
+          .set({
+            userId: arr[0].userId,
+            regulateId: arr[0].regulateId,
+            reason: arr[0].reason,
+            issuer: arr[0].issuer,
+          })
+          .where({id: arr[0].id})
+          .execute()
         res.status(200).send({
-          success: true,
-          msg:"성공적으로 내용을 수정했습니다.",
-          result
+            success: true,
+            msg:"성공적으로 내용을 수정했습니다.",
+            result
         })
       }else{
         res.status(400).send({
