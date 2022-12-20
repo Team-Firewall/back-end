@@ -5,6 +5,7 @@ import { Repository, Between } from 'typeorm';
 import { Point } from '../entity/point.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../util/sms'
+import { time } from 'console';
 
 @Injectable()
 export class PointService {
@@ -97,11 +98,15 @@ export class PointService {
   // 해당 기간의 상벌점 데이터 조회
   async FindByDate(req: Request, res: Response) {
     const {firstDate, secondDate} = req.body;
+    const date = new Date();
+    const time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+    const startDate = firstDate+' '+time;
+    const endDate = secondDate+' '+time;
     const list = await this.pointRepository
       .createQueryBuilder('point')
-      .where('point.createdAt BETWEEN :startDate AND :endDate', { startDate: firstDate, endDate: secondDate })
+      .where('point.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
       .select(['point', 'regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
-      .leftJoin('point.user', 'user')
+      .leftJoin('point.user', 'user') 
       .leftJoin('point.regulate', 'regulate')
       .getMany();
       
@@ -139,7 +144,7 @@ export class PointService {
     }else{
       res.status(400).send({
         success: false,
-        msg: `${firstDate}일부터 ${secondDate}일까지의 상벌점 발급 내역이 없습니다`
+        msg: `${startDate}부터 ${endDate}까지의 상벌점 발급 내역이 없습니다`
       })
     }
   }
@@ -180,7 +185,7 @@ export class PointService {
         reason: reason,
         regulateId: regulateId,
         issuer: issuer
-      })
+      });
 
       if(data){
         const sms = new SMS_Service();
