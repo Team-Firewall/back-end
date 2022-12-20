@@ -97,23 +97,49 @@ export class PointService {
   // 해당 기간의 상벌점 데이터 조회
   async FindByDate(req: Request, res: Response) {
     const {firstDate, secondDate} = req.body;
-    const result = await this.pointRepository.find({
-      where: {
-        createdAt: Between(firstDate, secondDate),
-      },
-      relations: ["user", "regulate"]
-    });
-    
-    if(result.length !== 0){
+    const list = await this.pointRepository
+      .createQueryBuilder('point')
+      .where('point.createdAt BETWEEN :startDate AND :endDate', { startDate: firstDate, endDate: secondDate })
+      .select(['point', 'regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
+      .leftJoin('point.user', 'user')
+      .leftJoin('point.regulate', 'regulate')
+      .getMany();
+      
+    const data = (list.map(cb => {
+      const createdDate = new Date(cb.createdAt).toISOString().split('T')[0];
+      const updatedDate = new Date(cb.updatedAt).toISOString().split('T')[0];
+      const createdTime = new Date(cb.createdAt).toTimeString().split(' ')[0];
+      const updatedTime = new Date(cb.updatedAt).toTimeString().split(' ')[0];
+      return({
+        id: cb.id,
+        userId: cb.user.id,
+        regulateId: cb.regulate.id,
+        grade: cb.user.grade,
+        class: cb.user.classNum,
+        number: cb.user.number,
+        name: cb.user.name,
+        checked: cb.regulate.checked,
+        division: cb.regulate.division,
+        regulate: cb.regulate.regulate,
+        score: cb.regulate.score,
+        reason: cb.reason,
+        issuer: cb.issuer,
+        createdDate: createdDate,
+        createdTime: createdTime,
+        updatedDate: updatedDate,
+        updatedTime: updatedTime,
+      })
+    }));
+    if(data.length !== 0){
       res.status(200).send({
-      success: true,
-      msg:`${firstDate}일 부터 ${secondDate}까지의 상벌점 내역입니다.`,
-      result
-    })
-    } else {
+        success: true,
+        msg:"성공적으로 값을 조회했습니다.",
+        data
+      })
+    }else{
       res.status(400).send({
         success: false,
-        msg: `${firstDate}일 부터 ${secondDate}까지의 상벌점 발급내역이 없거나 해당하는 유저를 찾을 수 없습니다.`
+        msg: `${firstDate}일부터 ${secondDate}일까지의 상벌점 발급 내역이 없습니다`
       })
     }
   }
