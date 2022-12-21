@@ -6,6 +6,7 @@ import { Point } from '../entity/point.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../util/sms'
 import { time } from 'console';
+import { where } from 'sequelize';
 
 @Injectable()
 export class PointService {
@@ -150,29 +151,61 @@ export class PointService {
     }
   }
   // 삭제
-  async deleteById(id: number, res: Response) {
-    const isId = this.findOne(id);
-    if(isId){
-      await this.pointRepository
-        .createQueryBuilder()
-        .delete()
-        .from(Point)
-        .where("id = :id", {id})
-        .execute()
-      res.status(200).send({
-        success: true,
-        msg: '성공적으로 상벌점 내역을 삭제 했습니다.'
-      })
+  async deleteById(req: Request, res: Response) {
+    const arr = req.body;
+    const successed = [];
+    const failed = [];
+    if(arr.length > 1){
+      for(let i = 0; i<arr.length; i++){
+        const isId = await this.pointRepository.findOne({
+          where: {id: arr[i].id}
+        });
+        if(isId){
+          await this.pointRepository.delete({id: arr[i].id});
+          successed[i] = arr[i].id;
+        }else{
+          failed[i] = arr[i].id;
+        }
+      }
+      if(successed.length !== 0 && failed.length !==0){
+        return res.status(200).send({
+          success: true,
+          msg:'해당하는 발급 내역이 삭제되었습니다.',
+          successed,
+          msg2:'해당하는 발급 내역이 없어 삭제에 실패하였습니다.',
+          failed
+        })
+      }else if(successed.length !== 0 && failed.length === 0){
+        return res.status(200).send({
+          success: true,
+          msg:'해당하는 발급 내역이 삭제되었습니다.',
+          successed
+        })
+      }else{
+        return res.status(400).send({
+          success: false,
+          msg:'해당하는 발급 내역이 없어 삭제에 실패하였습니다',
+          failed
+        })
+      }
     }else{
-      res.status(400).send({
-        success: false,
-        msg: '해당하는 상벌점 내역을 조회할 수 없습니다.'
-      })
+      const isId = await this.pointRepository.findOneBy(arr[0].id);
+      if(isId){
+        await this.pointRepository.delete({id: arr[0].id});
+        res.status(200).send({
+          success: true,
+          msg: '성공적으로 상벌점 내역을 삭제 했습니다.'
+        })
+      }else{
+        res.status(400).send({
+          success: false,
+          msg: '해당하는 상벌점 내역을 조회할 수 없습니다.'
+        })
+      }
     }
   }
   // 추가
   async addPoint(req: Request, res: Response) {
-
     const student = req.body;
     for(let i = 0; i < student.length; i++){
       const {userId, reason, regulateId, token} = student[i];
@@ -218,20 +251,22 @@ export class PointService {
   //규정 수정
   async update(req: Request, res: Response) {
     const arr = req.body;
+    const date = new Date();
+    const time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
     const successed = [];
     const failed = [];
     if(arr.length > 1){
       for(let i=0; i<arr.length; i++){
         const isPoint = await this.findOne(arr[i].id);
+        const updatedDate = arr[i].createAt+' '+time;
         if(isPoint){
           await this.pointRepository
             .createQueryBuilder()
             .update(Point)
             .set({
-              userId: arr[i].userId,
               regulateId: arr[i].regulateId,
               reason: arr[i].reason,
-              issuer: arr[i].issuer,
+              createdAt: updatedDate
             })
             .where({id: arr[i].id})
             .execute()
@@ -262,19 +297,22 @@ export class PointService {
         })
       }
     } else {
-      const existedPoint = await this.findOne(arr[0].id);
+      const { id, regulateId, reason, createAt } = arr[0];
+      const existedPoint = await this.findOne(id);
+      const date = new Date();
+      const time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+      const createdDate = createAt+' '+time;
       if(existedPoint){
         const result =
           await this.pointRepository
             .createQueryBuilder()
             .update(Point)
             .set({
-              userId: arr[0].userId,
-              regulateId: arr[0].regulateId,
-              reason: arr[0].reason,
-              issuer: arr[0].issuer,
+              regulateId: regulateId,
+              reason: reason,
+              createdAt: createdDate
             })
-            .where({id: arr[0].id})
+            .where({id: id})
             .execute()
         res.status(200).send({
           success: true,
@@ -284,7 +322,7 @@ export class PointService {
       }else{
         res.status(400).send({
           success: false,
-          msg:`${arr[0].id}라는 ID를 가진 발급 내역을 찾을 수 없습니다.`
+          msg:`${id}라는 ID를 가진 발급 내역을 찾을 수 없습니다.`
         })
       }
     }

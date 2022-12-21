@@ -40,9 +40,9 @@ export class PointController {
     return this.pointService.FindUserId(userId);
   }
 
-  @Delete(':id')
-  deleteById(@Param('id') id: number, @Res() res: Response) {
-    return this.pointService.deleteById(id, res);
+  @Delete()
+  deleteById(@Req() req: Request, @Res() res: Response) {
+    return this.pointService.deleteById(req, res);
   }
 
   @Post()
