@@ -31,8 +31,7 @@ export class PointService {
     const startDate = <Date>(new Date(year, month, day -7, hour, minute, second));
     const endDate = <Date>(new Date(year, month, day, hour, minute, second));
     const fDate = (startDate).toISOString().split('T')[0];
-    const fTime = (startDate).toTimeString().split(' ')[0];
-    const firstDate = (fDate+" "+fTime)
+    const firstDate = (fDate+" 00:00:00");
     const sDate = (endDate).toISOString().split('T')[0];
     const sTime = (endDate).toTimeString().split(' ')[0];
     const secondDate = (sDate+" "+sTime)
@@ -102,14 +101,14 @@ export class PointService {
     const {firstDate, secondDate} = req.body;
     const date = new Date();
     const time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
-    const startDate = firstDate+' '+time;
+    const startDate = firstDate+' '+'00:00:00';
     const endDate = secondDate+' '+time;
     const list = await this.pointRepository
       .createQueryBuilder('point')
       .where('point.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
       .select(['point', 'regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
       .leftJoin('point.user', 'user')
-      .leftJoin('point.regulate', 'regulate')
+      .leftJoin('point.regulate', 'regulate') 
       .getMany();
 
     const data = (list.map(cb => {
@@ -252,7 +251,28 @@ export class PointService {
   async update(req: Request, res: Response) {
     const arr = req.body;
     const date = new Date();
-    const time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+    const h = date.getHours();
+    const m = date.getMinutes();
+    const s = date.getSeconds();
+    let hour:string;
+    let minute:string;
+    let seconds:string;
+    if(date.getHours() < 12){
+      hour ="0"+h;
+    }else{
+      hour = h.toString();
+    }
+    if(date.getMinutes() < 10){
+      minute = "0"+m;
+    }else{
+      minute = m.toString();
+    }
+    if(date.getSeconds() < 10){
+      seconds = "0"+s;
+    }else{
+      seconds = s.toString();
+    }
+    const time = hour+":"+minute+":"+seconds; 
     const successed = [];
     const failed = [];
     if(arr.length > 1){
@@ -260,16 +280,13 @@ export class PointService {
         const isPoint = await this.findOne(arr[i].id);
         const updatedDate = arr[i].createAt+' '+time;
         if(isPoint){
-          await this.pointRepository
-            .createQueryBuilder()
-            .update(Point)
-            .set({
+          await this.pointRepository.update(
+            {id: arr[i].id},
+            {
               regulateId: arr[i].regulateId,
               reason: arr[i].reason,
               createdAt: updatedDate
             })
-            .where({id: arr[i].id})
-            .execute()
           successed[i] = arr[i];
         }else{
           failed[i] = arr[i];
@@ -297,23 +314,16 @@ export class PointService {
         })
       }
     } else {
-      const { id, regulateId, reason, createAt } = arr[0];
-      const existedPoint = await this.findOne(id);
-      const date = new Date();
-      const time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
-      const createdDate = createAt+' '+time;
+      const existedPoint = await this.findOne(arr[0].id);
+      const updatedDate = arr[0].createAt+' '+time;
       if(existedPoint){
-        const result =
-          await this.pointRepository
-            .createQueryBuilder()
-            .update(Point)
-            .set({
-              regulateId: regulateId,
-              reason: reason,
-              createdAt: createdDate
-            })
-            .where({id: id})
-            .execute()
+        const result = await this.pointRepository.update(
+          {id: arr[0].id},
+          {
+            regulateId: arr[0].regulateId,
+            reason: arr[0].reason,
+            createdAt: updatedDate
+          })
         res.status(200).send({
           success: true,
           msg:"성공적으로 내용을 수정했습니다.",
@@ -322,7 +332,7 @@ export class PointService {
       }else{
         res.status(400).send({
           success: false,
-          msg:`${id}라는 ID를 가진 발급 내역을 찾을 수 없습니다.`
+          msg:`${arr[0].id}라는 ID를 가진 발급 내역을 찾을 수 없습니다.`
         })
       }
     }
