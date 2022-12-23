@@ -99,10 +99,8 @@ export class PointService {
   // 해당 기간의 상벌점 데이터 조회
   async FindByDate(req: Request, res: Response) {
     const {firstDate, secondDate} = req.body;
-    const date = new Date();
-    const time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
     const startDate = firstDate+' '+'00:00:00';
-    const endDate = secondDate+' '+time;
+    const endDate = secondDate+' '+'11:59:59';
     const list = await this.pointRepository
       .createQueryBuilder('point')
       .where('point.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
