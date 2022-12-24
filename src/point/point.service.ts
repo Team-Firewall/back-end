@@ -35,7 +35,6 @@ export class PointService {
     const sDate = (endDate).toISOString().split('T')[0];
     const sTime = (endDate).toTimeString().split(' ')[0];
     const secondDate = (sDate+" "+sTime)
-    console.log(firstDate, secondDate)
 
     const list = await this.pointRepository
       .createQueryBuilder('point')
@@ -74,18 +73,42 @@ export class PointService {
     }));
     return data;
   }
+
   // id 값으로 상벌점 데이터 조회
   findOne(id: number): Promise<Point> {
     return this.pointRepository.findOne({ where: { id } });
   }
 
   // userId 값으로 상벌점 데이터 조회
-  async FindUserId(userId: number): Promise<Point[]> {
-    return this.pointRepository.find({
-      where: { userId: Number(userId) },
-      select: ['id', 'reason', 'createdAt', 'updatedAt'],
-      relations: ['regulate'],
-    });
+  async FindUserId(userId: number) {
+    const cnt = await this.pointRepository.count({ where: { userId } });
+
+      const data = await this.pointRepository
+        .createQueryBuilder('point')
+        .where('point.userId = :userId', { userId })
+        .select(['point', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name', 'user.permission' ])
+        .addSelect('regulate.score')
+        .leftJoin('point.user', 'user')
+        .leftJoin('point.regulate', 'regulate')
+        .getMany();
+
+
+      const grade = data[0].user.grade;
+      const classNum = data[0].user.classNum;
+      const number = data[0].user.number;
+      const name = data[0].user.name;
+      const permission = data[0].user.permission;
+      const score = data.map(cb => cb.regulate.score);
+      const sum = score.reduce((a, b) => a + b, 0);
+
+      return {
+        grade: grade,
+        class: classNum,
+        number: number,
+        name: name,
+        permission: permission,
+        total: sum,
+      }
   }
 
   // id로 선택한 상벌점 데이터 조회 (데이터정보, 사용자정보, 규정정보)

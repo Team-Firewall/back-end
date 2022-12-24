@@ -36,7 +36,7 @@ export class PointController {
   }
 
   @Get('User/:userId')
-  fetchPointByUserId(@Param('userId') userId: number): Promise<Point[]> {
+  fetchPointByUserId(@Param('userId') userId: number) {
     return this.pointService.FindUserId(userId);
   }
 
@@ -57,7 +57,7 @@ export class PointController {
 
   @Post('date')
   FindByDate(@Req() req: Request, @Res() res: Response) {
-    return this.pointService.FindByDate(req, res);
+    return this.pointService. FindByDate(req, res);
   }
 }
 
