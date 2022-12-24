@@ -30,6 +30,12 @@ export class PointController {
     return this.pointService.FindRelate(id);
   }
 
+  @Post('history')
+  FindByUserId(@Req() req: Request, @Res() res: Response) {
+    return this.pointService.FindByUserId(req, res);
+  }
+
+
   @Post('user')
   FindScoreByUserId(@Req() req: Request, @Res() res: Response) {
     return this.pointService.FindScoreByUserId(req, res);

@@ -79,6 +79,48 @@ export class PointService {
     return this.pointRepository.findOne({ where: { id } });
   }
 
+  async FindByUserId(req: Request, res: Response) {
+    const userId = req.body.userId;
+    const data = await this.pointRepository
+      .createQueryBuilder('point')
+      .where('point.userId = :userId', { userId })
+      .select(['point', 'regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
+      .leftJoin('point.user', 'user')
+      .leftJoin('point.regulate', 'regulate')
+      .getMany();
+
+    const result = (data.map(cb => {
+      const createdDate = new Date(cb.createdAt).toISOString().split('T')[0];
+      const updatedDate = new Date(cb.updatedAt).toISOString().split('T')[0];
+      const createdTime = new Date(cb.createdAt).toTimeString().split(' ')[0];
+      const updatedTime = new Date(cb.updatedAt).toTimeString().split(' ')[0];
+      return({
+        id: cb.id,
+        userId: cb.user.id,
+        regulateId: cb.regulate.id,
+        grade: cb.user.grade,
+        class: cb.user.classNum,
+        number: cb.user.number,
+        name: cb.user.name,
+        checked: cb.regulate.checked,
+        division: cb.regulate.division,
+        regulate: cb.regulate.regulate,
+        score: cb.regulate.score,
+        reason: cb.reason,
+        issuer: cb.issuer,
+        createdDate: createdDate,
+        createdTime: createdTime,
+        updatedDate: updatedDate,
+        updatedTime: updatedTime,
+      })
+    }));
+
+    if (result){
+      res.status(200).json(result);
+      return result;
+    }
+  }
+
   // userId 값으로 상벌점 데이터 조회
   async FindScoreByUserId(req: Request, res: Response) {
       const userId = req.body.userId;
