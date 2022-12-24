@@ -24,5 +24,13 @@ export class RegulateService {
     } catch (err) {
       console.log(err);
     }
+
+  }
+
+  async RegulateList() {
+    const data = this.regulateRepository.find({
+      select: ['id','checked','division', 'regulate', 'score'],
+    });
+    return data;
   }
 }

@@ -24,4 +24,9 @@ export class RegulateController {
   async FindRegulate(@Query('checked') checked: string): Promise<Regulate[]> {
     return this.regulateService.FindRegulate(checked);
   }
+
+  @Get()
+  async RegulateList() {
+    return this.regulateService.RegulateList();
+  }
 }
