@@ -81,8 +81,6 @@ export class PointService {
 
   // userId 값으로 상벌점 데이터 조회
   async FindUserId(userId: number) {
-    const cnt = await this.pointRepository.count({ where: { userId } });
-
       const data = await this.pointRepository
         .createQueryBuilder('point')
         .where('point.userId = :userId', { userId })
@@ -92,14 +90,19 @@ export class PointService {
         .leftJoin('point.regulate', 'regulate')
         .getMany();
 
-
       const grade = data[0].user.grade;
       const classNum = data[0].user.classNum;
       const number = data[0].user.number;
       const name = data[0].user.name;
       const permission = data[0].user.permission;
       const score = data.map(cb => cb.regulate.score);
+      const offset = 0;
+      const bonus = data.filter(cb => cb.regulate.score > 0);
+      const minus = data.filter(cb => cb.regulate.score < 0);
       const sum = score.reduce((a, b) => a + b, 0);
+      const sum_bonus = bonus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
+      const sum_minus = minus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
+
 
       return {
         grade: grade,
@@ -107,6 +110,9 @@ export class PointService {
         number: number,
         name: name,
         permission: permission,
+        bonus: sum_bonus,
+        minus: sum_minus,
+        offset: offset,
         total: sum,
       }
   }
