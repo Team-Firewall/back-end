@@ -100,7 +100,7 @@ export class PointService {
   async FindByDate(req: Request, res: Response) {
     const {firstDate, secondDate} = req.body;
     const startDate = firstDate+' '+'00:00:00';
-    const endDate = secondDate+' '+'11:59:59';
+    const endDate = secondDate+' '+'23:59:59';
     const list = await this.pointRepository
       .createQueryBuilder('point')
       .where('point.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
