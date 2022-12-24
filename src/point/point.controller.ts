@@ -23,11 +23,6 @@ export class PointController {
     return this.pointService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: number): Promise<Point> {
-    return this.pointService.findOne(id);
-  }
-
   @Get('Relate/:id')
   fetchPointByUserIdAndRegulateId(
     @Param('id') id: number,
@@ -35,9 +30,9 @@ export class PointController {
     return this.pointService.FindRelate(id);
   }
 
-  @Get('User/:userId')
-  fetchPointByUserId(@Param('userId') userId: number) {
-    return this.pointService.FindUserId(userId);
+  @Post('user')
+  FindScoreByUserId(@Req() req: Request, @Res() res: Response) {
+    return this.pointService.FindScoreByUserId(req, res);
   }
 
   @Delete()

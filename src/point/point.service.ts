@@ -80,7 +80,8 @@ export class PointService {
   }
 
   // userId 값으로 상벌점 데이터 조회
-  async FindUserId(userId: number) {
+  async FindScoreByUserId(req: Request, res: Response) {
+      const userId = req.body.userId;
       const data = await this.pointRepository
         .createQueryBuilder('point')
         .where('point.userId = :userId', { userId })
@@ -103,8 +104,7 @@ export class PointService {
       const sum_bonus = bonus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
       const sum_minus = minus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
 
-
-      return {
+      const result = {
         grade: grade,
         class: classNum,
         number: number,
@@ -114,6 +114,15 @@ export class PointService {
         minus: sum_minus,
         offset: offset,
         total: sum,
+      }
+
+      if(result){
+        res.status(200).json(result);
+        return result;
+      }
+      else{
+        res.status(400).json({ message: 'can not find user' });
+        return;
       }
   }
 
