@@ -6,8 +6,6 @@ import { Point } from '../entity/point.entity';
 import { User } from '../entity/user.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../util/sms'
-import { where } from "sequelize";
-import { isNumber } from "@nestjs/common/utils/shared.utils";
 
 @Injectable()
 export class PointService {
@@ -32,7 +30,7 @@ export class PointService {
     const minute = date.getMinutes()
     const second = date.getSeconds()
 
-    const startDate = <Date>(new Date(year, 2, 3, 0, 0, 0));
+    const startDate = <Date>(new Date(year, 2, 3));
     const endDate = <Date>(new Date(year, month, day, hour, minute, second));
     const fDate = (startDate).toISOString().split('T')[0];
     const firstDate = (fDate+" 00:00:00");
@@ -84,92 +82,101 @@ export class PointService {
   }
 
   async FindByUserId(req: Request, res: Response) {
-    const userId = req.body.userId;
+    const { id } = req.body;
+    const arr = [];
+    const result = [];
+    const finalResult = [];
     const data = await this.pointRepository
       .createQueryBuilder('point')
-      .where('point.userId = :userId', { userId })
-      .select(['point', 'regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
+      .select(['point', 'regulate', 'r.score', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
       .leftJoin('point.user', 'user')
-      .leftJoin('point.regulate', 'regulate')
+      .leftJoin('point.regulate', 'r')
+      .where('r.Id = point.regulateId and point.userId = :id', {id})
       .getMany();
-
-    const result = (data.map(cb => {
-      const createdDate = new Date(cb.createdAt).toISOString().split('T')[0];
-      const updatedDate = new Date(cb.updatedAt).toISOString().split('T')[0];
-      const createdTime = new Date(cb.createdAt).toTimeString().split(' ')[0];
-      const updatedTime = new Date(cb.updatedAt).toTimeString().split(' ')[0];
-
-      return({
-        id: cb.id,
-        userId: cb.user.id,
-        regulateId: cb.regulate.id,
-        grade: cb.user.grade,
-        class: cb.user.classNum,
-        number: cb.user.number,
-        name: cb.user.name,
-        checked: cb.regulate.checked,
-        division: cb.regulate.division,
-        regulate: cb.regulate.regulate,
-        score: cb.regulate.score,
-        reason: cb.reason,
-        issuer: cb.issuer,
-        createdDate: createdDate,
-        createdTime: createdTime,
-        updatedDate: updatedDate,
-        updatedTime: updatedTime,
+    for(const i in data){
+      arr[i] = data[i].regulate.score;
+      const sumNum = arr.reduce((acc, cur, i) => {
+        return result[i] = acc + cur;
+      }, 0)
+      const date = data[i].createdAt;
+      const createdDate = (date).toISOString().split('T')[0];
+      finalResult[i] = {
+        id: data[i].id,
+        userId: data[i].user.id,
+        regulateId: data[i].regulateId,
+        grade: data[i].user.grade,
+        classNum: data[i].user.classNum,
+        number: data[i].user.number,
+        name: data[i].user.name,
+        checked: data[i].regulate.checked,
+        regulate: data[i].regulate.regulate,
+        reason: data[i].reason,
+        createdAt: createdDate,
+        issuer: data[i].issuer,
+        permission: data[i].user.permission,
+        score: arr[i],
+        total: result[i]
+      }
+    }
+    if(finalResult.length !== 0){
+      res.status(200).send({
+        success:true,
+        msg:'값을 성공적으로 불러왔습니다.',
+        finalResult
       })
-    }));
-
-    if (result){
-      res.status(200).json(result);
+    }else{
+      res.status(400).send({
+        success: false,
+        msg:'해당하는 유저가 존재하지 않습니다.',
+      })
     }
   }
 
   // userId 값으로 상벌점 데이터 조회
   async FindScoreByUserId(req: Request, res: Response) {
-      const userId = req.body.userId;
-      const data = await this.pointRepository
-        .createQueryBuilder('point')
-        .where('point.userId = :userId', { userId })
-        .select(['point', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name', 'user.permission' ])
-        .addSelect('regulate.score')
-        .leftJoin('point.user', 'user')
-        .leftJoin('point.regulate', 'regulate')
-        .getMany();
+    const userId = req.body.userId;
+    const data = await this.pointRepository
+      .createQueryBuilder('point')
+      .where('point.userId = :userId', { userId })
+      .select(['point', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name', 'user.permission' ])
+      .addSelect('regulate.score')
+      .leftJoin('point.user', 'user')
+      .leftJoin('point.regulate', 'regulate')
+      .getMany();
 
-      const grade = data[0].user.grade;
-      const classNum = data[0].user.classNum;
-      const number = data[0].user.number;
-      const name = data[0].user.name;
-      const permission = data[0].user.permission;
-      const score = data.map(cb => cb.regulate.score);
-      const offset = 0;
-      const bonus = data.filter(cb => cb.regulate.score > 0);
-      const minus = data.filter(cb => cb.regulate.score < 0);
-      const sum = score.reduce((a, b) => a + b, 0);
-      const sum_bonus = bonus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
-      const sum_minus = minus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
+    const grade = data[0].user.grade;
+    const classNum = data[0].user.classNum;
+    const number = data[0].user.number;
+    const name = data[0].user.name;
+    const permission = data[0].user.permission;
+    const score = data.map(cb => cb.regulate.score);
+    const offset = 0;
+    const bonus = data.filter(cb => cb.regulate.score > 0);
+    const minus = data.filter(cb => cb.regulate.score < 0);
+    const sum = score.reduce((a, b) => a + b, 0);
+    const sum_bonus = bonus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
+    const sum_minus = minus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
 
-      const result = {
-        grade: grade,
-        class: classNum,
-        number: number,
-        name: name,
-        permission: permission,
-        bonus: sum_bonus,
-        minus: sum_minus,
-        offset: offset,
-        total: sum,
-      }
+    const result = {
+      grade: grade,
+      class: classNum,
+      number: number,
+      name: name,
+      permission: permission,
+      bonus: sum_bonus,
+      minus: sum_minus,
+      offset: offset,
+      total: sum,
+    }
 
-      if(result){
-        res.status(200).json(result);
-        return result;
-      }
-      else{
-        res.status(400).json({ message: 'can not find user' });
-        return;
-      }
+    if(result){
+      res.status(200).json(result);
+      return result;
+    }
+    else{
+      res.status(400).json({ message: 'can not find user' });
+      return;
+    }
   }
 
   async FindTotal (req: Request, res: Response) {
@@ -233,7 +240,7 @@ export class PointService {
       .where('point.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
       .select(['point', 'regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
       .leftJoin('point.user', 'user')
-      .leftJoin('point.regulate', 'regulate') 
+      .leftJoin('point.regulate', 'regulate')
       .getMany();
 
     const data = (list.map(cb => {
@@ -397,7 +404,7 @@ export class PointService {
     }else{
       seconds = s.toString();
     }
-    const time = hour+":"+minute+":"+seconds; 
+    const time = hour+":"+minute+":"+seconds;
     const successed = [];
     const failed = [];
     if(arr.length > 1){
