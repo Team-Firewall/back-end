@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import {
-  Controller,
-  Get,
+  Controller, Delete,
+  Get, Post,
   // Param,
   // Get,
   // Delete,
@@ -10,9 +10,9 @@ import {
   // Body,
   // Param,
   // RawBodyRequest,
-  Query,
+  Query, Req, Res
   // Res,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import { RegulateService } from './regulate.service';
 import { Regulate } from './../entity/regulate.entity';
 
@@ -28,5 +28,20 @@ export class RegulateController {
   @Get()
   async RegulateList() {
     return this.regulateService.RegulateList();
+  }
+
+  @Post()
+  async RegulateCreate(@Req() req, @Res() res) {
+    return this.regulateService.RegulateCreate(req, res);
+  }
+
+  @Post('update')
+  async RegulateUpdate(@Req() req, @Res() res) {
+    return this.regulateService.RegulateUpdate(req, res);
+  }
+
+  @Delete('delete')
+  async RegulateDelete(@Req() req, @Res() res) {
+    return this.regulateService.RegulateDelete(req, res);
   }
 }
