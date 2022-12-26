@@ -26,8 +26,9 @@ export class UserController {
   }
 
   @Get()
-  UserList(): Promise<User[]> {
+  UserList() {
     return this.userService.UserList();
   }
- 
+
+
 }

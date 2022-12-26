@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { PointController } from './point.controller';
 import { PointService } from './point.service';

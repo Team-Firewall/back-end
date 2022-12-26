@@ -43,24 +43,24 @@ export class UserService {
     }
   }
 
-  async UserList(): Promise<User[]> {
+  async UserList() {
     const data = this.userRepository.find({
       where: [
         { permission: 3 },
         { permission: 4 },
       ],
       select: [
-          'id', 
-          'name',
-          'grade', 
-          'classNum', 
-          'number',
-          'phone', 
-          'permission'
-        ],
-        relations: ['parents'],
-      })
-    
+        'id',
+        'name',
+        'grade',
+        'classNum',
+        'number',
+        'phone',
+        'permission'
+      ],
+      relations: ['parents'],
+    })
+
     try {
       if (data) {
         return data;
