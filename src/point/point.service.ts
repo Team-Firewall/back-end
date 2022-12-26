@@ -5,8 +5,6 @@ import { Repository, Between } from 'typeorm';
 import { Point } from '../entity/point.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../util/sms'
-import { time } from 'console';
-import { where } from 'sequelize';
 
 @Injectable()
 export class PointService {
@@ -94,6 +92,7 @@ export class PointService {
       const updatedDate = new Date(cb.updatedAt).toISOString().split('T')[0];
       const createdTime = new Date(cb.createdAt).toTimeString().split(' ')[0];
       const updatedTime = new Date(cb.updatedAt).toTimeString().split(' ')[0];
+
       return({
         id: cb.id,
         userId: cb.user.id,
@@ -117,7 +116,6 @@ export class PointService {
 
     if (result){
       res.status(200).json(result);
-      return result;
     }
   }
 
@@ -166,6 +164,60 @@ export class PointService {
         res.status(400).json({ message: 'can not find user' });
         return;
       }
+  }
+
+  async FindTotal (req: Request, res: Response) {
+    const userId = await this.pointRepository
+      .createQueryBuilder('point')
+      .select('point.userId')
+      .distinct(true)
+      .getMany();
+
+    const value = []
+    for (let i = 0; i < userId.length; i++) {
+      const id = userId[i].userId;
+
+      const data = await this.pointRepository
+        .createQueryBuilder('point')
+        .where('point.userId = :id', { id })
+        .select(['point', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name', 'user.permission' ])
+        .addSelect('regulate.score')
+        .leftJoin('point.user', 'user')
+        .leftJoin('point.regulate', 'regulate')
+        .getMany();
+
+      const user = id;
+      const grade = data[0].user.grade;
+      const classNum = data[0].user.classNum;
+      const number = data[0].user.number;
+      const name = data[0].user.name;
+      const permission = data[0].user.permission;
+      const score = data.map(cb => cb.regulate.score);
+      const offset = 0;
+      const bonus = data.filter(cb => cb.regulate.score > 0);
+      const minus = data.filter(cb => cb.regulate.score < 0);
+      const sum = score.reduce((a, b) => a + b, 0);
+      const sum_bonus = bonus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
+      const sum_minus = minus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
+
+      const result = {
+        userId: user,
+        grade: grade,
+        class: classNum,
+        number: number,
+        name: name,
+        permission: permission,
+        bonus: sum_bonus,
+        minus: sum_minus,
+        offset: offset,
+        total: sum,
+      }
+
+      value.push(new Promise(resolve => resolve(result)));
+    }
+    Promise.all(value).then((result) => {
+      res.status(200).json(result);
+    })
   }
 
   // id로 선택한 상벌점 데이터 조회 (데이터정보, 사용자정보, 규정정보)
