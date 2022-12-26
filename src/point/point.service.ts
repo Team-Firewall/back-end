@@ -3,8 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { Point } from '../entity/point.entity';
+import { User } from '../entity/user.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../util/sms'
+import { where } from "sequelize";
+import { isNumber } from "@nestjs/common/utils/shared.utils";
 
 @Injectable()
 export class PointService {
@@ -13,6 +16,9 @@ export class PointService {
   constructor(
     @InjectRepository(Point)
     private pointRepository: Repository<Point>,
+
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
   // 발급된 상벌점 데이터 출력]
@@ -176,65 +182,54 @@ export class PointService {
   }
 
   async FindTotal (req: Request, res: Response) {
-    const userId = await this.pointRepository
-      .createQueryBuilder('point')
-      .select('point.userId')
-      .distinct(true)
-      .getMany();
 
-    const value = []
-    for (let i = 0; i < userId.length; i++) {
-      const id = userId[i].userId;
+    const userId = await this.userRepository
+      .createQueryBuilder('user')
+      .select('user')
+      .where('permission = 3')
+      .orWhere('permission = 4')
+      .addSelect(subQuery => {
+        return subQuery
+          .select("SUM(regulate.score)", "cnt")
+          .from('point', 'point')
+          .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
+          .where("point.userId = user.id")
+          .groupBy('point.userId');
+      }, "cnt")
+      .addSelect(subQuery => {
+        return subQuery
+          .select("SUM(CASE WHEN regulate.score > 0 THEN regulate.score ELSE 0 END)", "bonus")
+          .from('point', 'point')
+          .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
+          .where("point.userId = user.id")
+          .groupBy('point.userId');
+      }, "bonus")
+      .addSelect(subQuery => {
+        return subQuery
+          .select("SUM(CASE WHEN regulate.score < 0 THEN regulate.score ELSE 0 END)", "minus")
+          .from('point', 'point')
+          .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
+          .where("point.userId = user.id")
+          .groupBy('point.userId');
+      }, "minus")
+      .getRawMany();
 
-      const data = await this.pointRepository
-        .createQueryBuilder('point')
-        .where('point.userId = :id', { id })
-        .select(['point', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name', 'user.permission' ])
-        .addSelect('regulate.score')
-        .leftJoin('point.user', 'user')
-        .leftJoin('point.regulate', 'regulate')
-        .getMany();
-
-      const user = id;
-      const grade = data[0].user.grade;
-      const classNum = data[0].user.classNum;
-      const number = data[0].user.number;
-      const name = data[0].user.name;
-      const permission = data[0].user.permission;
-      const score = data.map(cb => cb.regulate.score);
-      const offset = 0;
-      const bonus = data.filter(cb => cb.regulate.score > 0);
-      const minus = data.filter(cb => cb.regulate.score < 0);
-      const sum = score.reduce((a, b) => a + b, 0);
-      const sum_bonus = bonus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
-      const sum_minus = minus.map(cb => cb.regulate.score).reduce((a, b) => a + b, 0);
-
-      const result = {
-        userId: user,
-        grade: grade,
-        class: classNum,
-        number: number,
-        name: name,
-        permission: permission,
-        bonus: sum_bonus,
-        minus: sum_minus,
-        offset: offset,
-        total: sum,
-      }
-
-      value.push(new Promise(resolve => resolve(result)));
-    }
-    Promise.all(value).then((result) => {
-      res.status(200).json(result);
+    const data = userId.map(cb => {
+      return({
+        userId: cb.user_id,
+        grade: cb.user_grade,
+        class: cb.user_classNum,
+        number: cb.user_number,
+        name: cb.user_name,
+        permission: cb.user_permission,
+        bonus: cb.bonus ? cb.bonus : 0,
+        minus: cb.minus ? cb.minus : 0,
+        total: cb.cnt ? cb.cnt : 0,
+      })
     })
-  }
 
-  // id로 선택한 상벌점 데이터 조회 (데이터정보, 사용자정보, 규정정보)
-  async FindRelate(id: number): Promise<Point> {
-    return this.pointRepository.findOne({
-      where: {id},
-      relations: ['user', 'regulate']
-    })
+    res.status(200).json(data);
+
   }
 
   // 해당 기간의 상벌점 데이터 조회

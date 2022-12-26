@@ -23,13 +23,6 @@ export class PointController {
     return this.pointService.findAll();
   }
 
-  @Get('Relate/:id')
-  fetchPointByUserIdAndRegulateId(
-    @Param('id') id: number,
-  ): Promise<Point | null> {
-    return this.pointService.FindRelate(id);
-  }
-
   @Post('history')
   FindByUserId(@Req() req: Request, @Res() res: Response) {
     return this.pointService.FindByUserId(req, res);
