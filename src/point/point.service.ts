@@ -216,7 +216,7 @@ export class PointService {
       return({
         userId: cb.user_id,
         grade: cb.user_grade,
-        class: cb.user_classNum,
+        class: cb.user_class,
         number: cb.user_number,
         name: cb.user_name,
         permission: cb.user_permission,
