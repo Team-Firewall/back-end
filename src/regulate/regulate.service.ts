@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Regulate } from '../entity/regulate.entity';
 import { Request, Response } from "express";
+import { groupBy } from "rxjs";
 
 @Injectable()
 export class RegulateService {
@@ -79,5 +80,33 @@ export class RegulateService {
       success: true,
       msg: '성공적으로 상벌점 규정을 삭제하였습니다.'
     });
+  }
+
+  async ScoreByList(req: Request, res: Response) {
+    const regulateId = await this.regulateRepository
+      .createQueryBuilder('regulate')
+      .select('regulate')
+      .addSelect(subQuery => {
+        return subQuery
+          .select('COUNT(*)', 'count')
+          .from('point', 'point')
+          .where('point.regulateId = regulate.id')
+          .groupBy('point.regulateId');
+      }, 'count')
+      .getRawMany();
+
+    const data = regulateId.map(cb => {
+      return {
+        id: cb.regulate_id,
+        checked: cb.regulate_checked,
+        division: cb.regulate_division,
+        regulate: cb.regulate_regulate,
+        score: cb.regulate_score,
+        count: cb.count ? cb.count : 0,
+        sum: (cb.regulate_score * cb.count)? (cb.regulate_score * cb.count) : 0,
+      };
+    })
+
+    res.status(200).json({ data });
   }
 }

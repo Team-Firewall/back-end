@@ -44,4 +44,9 @@ export class RegulateController {
   async RegulateDelete(@Req() req, @Res() res) {
     return this.regulateService.RegulateDelete(req, res);
   }
+
+  @Get('total')
+  async ScoreByList(@Req() req, @Res() res) {
+    return this.regulateService.ScoreByList(req, res);
+  }
 }
