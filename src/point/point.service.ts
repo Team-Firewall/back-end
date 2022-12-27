@@ -179,57 +179,6 @@ export class PointService {
     }
   }
 
-  async FindTotal (req: Request, res: Response) {
-
-    const userId = await this.userRepository
-      .createQueryBuilder('user')
-      .select('user')
-      .where('permission = 3')
-      .orWhere('permission = 4')
-      .addSelect(subQuery => {
-        return subQuery
-          .select("SUM(regulate.score)", "cnt")
-          .from('point', 'point')
-          .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
-          .where("point.userId = user.id")
-          .groupBy('point.userId');
-      }, "cnt")
-      .addSelect(subQuery => {
-        return subQuery
-          .select("SUM(CASE WHEN regulate.score > 0 THEN regulate.score ELSE 0 END)", "bonus")
-          .from('point', 'point')
-          .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
-          .where("point.userId = user.id")
-          .groupBy('point.userId');
-      }, "bonus")
-      .addSelect(subQuery => {
-        return subQuery
-          .select("SUM(CASE WHEN regulate.score < 0 THEN regulate.score ELSE 0 END)", "minus")
-          .from('point', 'point')
-          .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
-          .where("point.userId = user.id")
-          .groupBy('point.userId');
-      }, "minus")
-      .getRawMany();
-
-    const data = userId.map(cb => {
-      return({
-        userId: cb.user_id,
-        grade: cb.user_grade,
-        class: cb.user_class,
-        number: cb.user_number,
-        name: cb.user_name,
-        permission: cb.user_permission,
-        bonus: cb.bonus ? cb.bonus : 0,
-        minus: cb.minus ? cb.minus : 0,
-        total: cb.cnt ? cb.cnt : 0,
-      })
-    })
-
-    res.status(200).json(data);
-
-  }
-
   // 해당 기간의 상벌점 데이터 조회
   async FindByDate(req: Request, res: Response) {
     const {firstDate, secondDate} = req.body;

@@ -8,12 +8,12 @@ import {
   // Body,
   // Param,
   // RawBodyRequest,
-  Req,
+  Req, Res
   // Res,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import { UserService } from './user.service';
 import { User } from './../entity/user.entity';
-import { Request } from 'express';
+import { Request, Response } from "express";
 
 @Controller('v1/user')
 export class UserController {
@@ -30,5 +30,9 @@ export class UserController {
     return this.userService.UserList();
   }
 
+  @Get('total')
+  FindTotal(@Req() req: Request, @Res() res: Response) {
+    return this.userService.FindTotal(req, res);
+  }
 
 }

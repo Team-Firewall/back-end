@@ -28,11 +28,6 @@ export class PointController {
     return this.pointService.FindByUserId(req, res);
   }
 
-  @Get('total')
-  FindTotal(@Req() req: Request, @Res() res: Response) {
-    return this.pointService.FindTotal(req, res);
-  }
-
   @Post('user')
   FindScoreByUserId(@Req() req: Request, @Res() res: Response) {
     return this.pointService.FindScoreByUserId(req, res);
