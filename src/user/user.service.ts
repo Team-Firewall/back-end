@@ -145,6 +145,24 @@ export class UserService {
   }
 
   async issueScoreByUser (req: Request, res: Response) {
+    const date = new Date();
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const day = date.getDate()
+    const hour = date.getHours()
+    const minute = date.getMinutes()
+    const second = date.getSeconds()
+
+    const fst = <Date>(new Date(year, 2, 2, hour, minute, second));
+    const snd = <Date>(new Date(year, month, day, hour, minute, second));
+    const fDate = (fst).toISOString().split('T')[0];
+    const sDate = (snd).toISOString().split('T')[0];
+
+    const {startDate, endDate} = req.body
+
+    const firstDate = startDate !== undefined ? startDate+" 00:00:00" : fDate+" 00:00:00";
+    const secondDate = endDate !== undefined ? endDate+" 23:59:59" : sDate+" 23:59:59";
+
     const user = await this.userRepository
       .createQueryBuilder('user')
       .select('user.id , user.account, user.name, user.permission')
@@ -153,10 +171,11 @@ export class UserService {
       .orWhere('permission = 2')
       .addSelect(subQuery => {
         return subQuery
-          .select("COUNT(case WHEN regulate.checked = '상점' THEN regulate.score ELSE 0 END)", "cnt_plus")
+          .select("SUM(case WHEN regulate.checked = '상점' THEN 1 ELSE 0 END)", "cnt_plus")
           .from('point', 'point')
           .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
           .where("point.issuerId = user.account")
+          .andWhere("point.createdAt BETWEEN :firstDate AND :secondDate", { firstDate, secondDate })
           .groupBy('point.issuerId');
       }, "plus_cnt")
       .addSelect(subQuery => {
@@ -165,14 +184,16 @@ export class UserService {
           .from('point', 'point')
           .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
           .where("point.issuerId = user.account")
+          .andWhere("point.createdAt BETWEEN :firstDate AND :secondDate", { firstDate, secondDate })
           .groupBy('point.issuerId');
       }, "plus_sum")
       .addSelect(subQuery => {
         return subQuery
-          .select("COUNT(case WHEN regulate.checked = '벌점' THEN regulate.score ELSE 0 END)", "cnt_minus")
+          .select("SUM(case WHEN regulate.checked = '벌점' THEN 1 ELSE 0 END)", "cnt_minus")
           .from('point', 'point')
           .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
           .where("point.issuerId = user.account")
+          .andWhere("point.createdAt BETWEEN :firstDate AND :secondDate", { firstDate, secondDate })
           .groupBy('point.issuerId');
       }, "minus_cnt")
       .addSelect(subQuery => {
@@ -181,6 +202,7 @@ export class UserService {
           .from('point', 'point')
           .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
           .where("point.issuerId = user.account")
+          .andWhere("point.createdAt BETWEEN :firstDate AND :secondDate", { firstDate, secondDate })
           .groupBy('point.issuerId');
       }, "minus_sum")
       .getRawMany()
