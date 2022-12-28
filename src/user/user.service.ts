@@ -128,4 +128,49 @@ export class UserService {
     res.status(200).json(data);
 
   }
+
+  async issueScoreByUser (req: Request, res: Response) {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .select('user.id , user.account, user.name, user.permission')
+      .where('permission = 0')
+      .orWhere('permission = 1')
+      .orWhere('permission = 2')
+      .addSelect(subQuery => {
+        return subQuery
+          .select("COUNT(case WHEN regulate.checked = '상점' THEN regulate.score ELSE 0 END)", "cnt_plus")
+          .from('point', 'point')
+          .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
+          .where("point.issuerId = user.account")
+          .groupBy('point.issuerId');
+      }, "plus_cnt")
+      .addSelect(subQuery => {
+        return subQuery
+          .select("SUM(case WHEN regulate.checked = '상점' THEN regulate.score ELSE 0 END)", "sum_plus")
+          .from('point', 'point')
+          .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
+          .where("point.issuerId = user.account")
+          .groupBy('point.issuerId');
+      }, "plus_sum")
+      .addSelect(subQuery => {
+        return subQuery
+          .select("COUNT(case WHEN regulate.checked = '벌점' THEN regulate.score ELSE 0 END)", "cnt_minus")
+          .from('point', 'point')
+          .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
+          .where("point.issuerId = user.account")
+          .groupBy('point.issuerId');
+      }, "minus_cnt")
+      .addSelect(subQuery => {
+        return subQuery
+          .select("SUM(case WHEN regulate.checked = '벌점' THEN regulate.score ELSE 0 END)", "sum_minus")
+          .from('point', 'point')
+          .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
+          .where("point.issuerId = user.account")
+          .groupBy('point.issuerId');
+      }, "minus_sum")
+      .getRawMany()
+
+    console.log(user)
+    res.status(200).json(user);
+  }
 }
