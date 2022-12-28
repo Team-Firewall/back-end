@@ -30,7 +30,7 @@ export class UserController {
     return this.userService.UserList();
   }
 
-  @Get('total')
+  @Post('total')
   FindTotal(@Req() req: Request, @Res() res: Response) {
     return this.userService.FindTotal(req, res);
   }

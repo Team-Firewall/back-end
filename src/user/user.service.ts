@@ -73,6 +73,9 @@ export class UserService {
   }
 
   async FindTotal (req: Request, res: Response) {
+    const {startDate, endDate} = req.body
+    const firstDate = (startDate+" 00:00:00");
+    const secondDate = (endDate+" 23:59:59")
 
     const userId = await this.userRepository
       .createQueryBuilder('user')
@@ -85,6 +88,7 @@ export class UserService {
           .from('point', 'point')
           .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
           .where("point.userId = user.id")
+          .andWhere("point.createdAt BETWEEN :firstDate AND :secondDate", { firstDate, secondDate })
           .groupBy('point.userId');
       }, "cnt")
       .addSelect(subQuery => {
@@ -93,6 +97,7 @@ export class UserService {
           .from('point', 'point')
           .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
           .where("point.userId = user.id")
+          .andWhere("point.createdAt BETWEEN :firstDate AND :secondDate", { firstDate, secondDate })
           .groupBy('point.userId');
       }, "bonus")
       .addSelect(subQuery => {
@@ -101,6 +106,7 @@ export class UserService {
           .from('point', 'point')
           .leftJoin('regulate', 'regulate', 'regulate.id = point.regulateId')
           .where("point.userId = user.id")
+          .andWhere("point.createdAt BETWEEN :firstDate AND :secondDate", { firstDate, secondDate })
           .groupBy('point.userId');
       }, "minus")
       .getRawMany();
