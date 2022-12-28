@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { Point } from '../entity/point.entity';
-import { User } from '../entity/user.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../util/sms'
 
@@ -15,8 +14,6 @@ export class PointService {
     @InjectRepository(Point)
     private pointRepository: Repository<Point>,
 
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
   ) {}
 
   // 발급된 상벌점 데이터 출력]
@@ -30,13 +27,12 @@ export class PointService {
     const minute = date.getMinutes()
     const second = date.getSeconds()
 
-    const startDate = <Date>(new Date(year, 2, 3));
+    const startDate = <Date>(new Date(year, month, day -7, hour, minute, second));
     const endDate = <Date>(new Date(year, month, day, hour, minute, second));
     const fDate = (startDate).toISOString().split('T')[0];
     const firstDate = (fDate+" 00:00:00");
     const sDate = (endDate).toISOString().split('T')[0];
-    const sTime = (endDate).toTimeString().split(' ')[0];
-    const secondDate = (sDate+" "+sTime)
+    const secondDate = (sDate+" 23:59:59");
 
     const list = await this.pointRepository
       .createQueryBuilder('point')
