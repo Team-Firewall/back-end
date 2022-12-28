@@ -57,6 +57,7 @@ export class UserService {
         'classNum',
         'number',
         'phone',
+        'account',
         'permission'
       ],
       relations: ['parents'],
