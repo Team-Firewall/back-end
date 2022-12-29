@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Point } from '../entity/point.entity';
 import { Request, Response } from 'express';
 import { SMS_Service } from '../util/sms'
@@ -84,10 +84,10 @@ export class PointService {
     const finalResult = [];
     const data = await this.pointRepository
       .createQueryBuilder('point')
-      .select(['point', 'regulate', 'r.score', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
-      .leftJoin('point.user', 'user')
-      .leftJoin('point.regulate', 'r')
-      .where('r.Id = point.regulateId and point.userId = :id', {id})
+      .select(['point', 'regulate', 'r.score', 'r.checked', 'r.regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
+      .innerJoin('point.user', 'user')
+      .innerJoin('point.regulate', 'r')
+      .where('point.userId = :id and r.id = point.regulateid', {id})
       .getMany();
     for(const i in data){
       arr[i] = data[i].regulate.score;

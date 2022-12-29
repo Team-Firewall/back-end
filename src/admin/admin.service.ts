@@ -61,6 +61,9 @@ export class AdminService {
           }
         })
       if(isUser.length === 0){
+        if(arr[i].grade === 0) arr[i].grade = null;
+        if(arr[i].classNum === 0) arr[i].classNum = null;
+        if(arr[i].number === 0) arr[i].number = null;
         const salt = getRandom('all', 10);
         const encrypt = hash(arr[i].password + salt);
         await this.userRepository.insert({
