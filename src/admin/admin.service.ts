@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { hash, getRandom } from '../util/text';
-import { User } from './../entity/User.entity'; 
+import { User } from './../entity/user.entity'; 
 import { Response, Request } from 'express';
 
 @Injectable()
