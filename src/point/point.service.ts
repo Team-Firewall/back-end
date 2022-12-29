@@ -78,20 +78,39 @@ export class PointService {
   }
 
   async FindByUserId(req: Request, res: Response) {
-    const { id } = req.body;
+    const date = new Date();
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const day = date.getDate()
+    const hour = date.getHours()
+    const minute = date.getMinutes()
+    const second = date.getSeconds()
+
+    const fst = <Date>(new Date(year, 2, 2, hour, minute, second));
+    const snd = <Date>(new Date(year, month, day, hour, minute, second));
+    const fDate = (fst).toISOString().split('T')[0];
+    const sDate = (snd).toISOString().split('T')[0];
+
+    const { id, startDate, endDate } = req.body;
+
+    const firstDate = startDate !== undefined ? startDate+" 00:00:00" : fDate+" 00:00:00";
+    const secondDate = endDate !== undefined ? endDate+" 23:59:59" : sDate+" 23:59:59";
+
     const arr = [];
     const result = [];
     const finalResult = [];
+
     const data = await this.pointRepository
       .createQueryBuilder('point')
       .select(['point', 'regulate', 'r.score', 'r.checked', 'r.regulate', 'user.id', 'user.grade', 'user.classNum', 'user.number', 'user.name' ])
       .innerJoin('point.user', 'user')
       .innerJoin('point.regulate', 'r')
-      .where('point.userId = :id and r.id = point.regulateid', {id})
+      .where('point.userId = :id and r.id = point.regulateId', {id})
+      .andWhere('point.createdAt BETWEEN :firstDate AND :secondDate', { firstDate, secondDate })
       .getMany();
     for(const i in data){
       arr[i] = data[i].regulate.score;
-      const sumNum = arr.reduce((acc, cur, i) => {
+      arr.reduce((acc, cur, i) => {
         return result[i] = acc + cur;
       }, 0)
       const date = data[i].createdAt;
