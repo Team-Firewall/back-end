@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { sign } from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { hash, getRandom } from '../util/text';
-import { User } from '../entity/User.entity';
+import { User } from '../entity/ser.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 @Injectable()
