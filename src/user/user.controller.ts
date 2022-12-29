@@ -35,7 +35,7 @@ export class UserController {
     return this.userService.FindTotal(req, res);
   }
 
-  @Get('issue')
+  @Post('issue')
   FindIssue(@Req() req: Request, @Res() res: Response) {
     return this.userService.issueScoreByUser(req, res);
   }
