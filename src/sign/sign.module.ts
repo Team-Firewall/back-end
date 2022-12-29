@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../entity/User.entity';
+import { User } from '../entity/user.entity';
 import { SignController } from './sign.controller';
 import { SignService } from './sign.service';
 
